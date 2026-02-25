@@ -6,6 +6,7 @@ This script demonstrates:
 1. Simon's algorithm recovering a secret string
 2. Key recovery attack on the Even-Mansour cipher
 3. Key recovery attack on a 3-round Feistel network
+4. Quantum slide attack on an iterated block cipher
 
 All simulations use Qiskit's statevector simulator (no hardware needed).
 Block sizes are kept small (4-8 bits) for simulation feasibility.
@@ -101,6 +102,40 @@ def demo_feistel_attack():
         print()
 
 
+def demo_slide_attack():
+    """Demonstrate quantum slide attack on an iterated block cipher."""
+    from src.slide_attack import SlideBlockCipher, attack_slide_cipher
+
+    print("=" * 60)
+    print("DEMO 4: Quantum Slide Attack on Iterated Block Cipher")
+    print("=" * 60)
+    print()
+    print("  Cipher: E_k(x) = F_k^r(x), where F_k(x) = P(x XOR k)")
+    print("  Attack: f(x) = F_k(x) XOR P(x) has Simon period s = k")
+    print("  Key insight: attack is O(n) regardless of the number of rounds r")
+    print()
+
+    # Show that the attack works for different round counts with the same key
+    key = 11  # 1011 in binary
+    for n_rounds in [1, 2, 5, 10]:
+        cipher = SlideBlockCipher(n_bits=4, n_rounds=n_rounds, key=key)
+
+        t0 = time.time()
+        result = attack_slide_cipher(cipher)
+        elapsed = time.time() - t0
+
+        rk = result["recovered_key"]
+        ok = result["success"]
+
+        print(f"  r={n_rounds:>2} rounds: key={key:04b}, recovered={rk:04b}, "
+              f"success={ok}  ({elapsed:.2f}s)")
+
+    print()
+    print("  All round counts broken with the same O(n) quantum complexity.")
+    print("  'Just add more rounds' is NOT a defense against quantum slide.")
+    print()
+
+
 def main():
     print()
     print("Quantum Attacks on Symmetric Cryptography via Simon's Algorithm")
@@ -117,6 +152,7 @@ def main():
     demo_simons_basic()
     demo_even_mansour_attack()
     demo_feistel_attack()
+    demo_slide_attack()
 
     print("=" * 60)
     print("All demonstrations complete.")
