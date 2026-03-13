@@ -1,0 +1,547 @@
+% ============================================================
+%  MOCK INTRODUCTION & BACKGROUND
+%  "Quantum Period-Finding Attacks on Symmetric Ciphers:
+%   Implementation and Comparative Analysis Using Simon's Algorithm"
+% ============================================================
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage[margin=1in]{geometry}
+
+\title{Quantum Period-Finding Attacks on Symmetric Ciphers:\\
+Implementation and Comparative Analysis Using Simon's Algorithm}
+
+\author{
+  Author One\thanks{Department of Computer Science, University of Example.}
+  \and
+  Author Two\thanks{Institute for Quantum Information, University of Example.}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+% SECTION 1: INTRODUCTION
+% ============================================================
+\section{Introduction}
+
+% --- Broad Context ---
+The advent of large-scale quantum computing poses a fundamental challenge
+to modern cryptography.  Shor's celebrated algorithm demonstrated that
+integer factorisation and discrete logarithm problems---the security
+foundations of RSA, Diffie--Hellman, and elliptic-curve
+cryptosystems---can be solved in polynomial time on a quantum
+computer~\cite{Shor1997}.  This existential threat to public-key
+cryptography has driven a decade-long international effort toward
+post-quantum standardisation, culminating in NIST's publication of
+FIPS~203, 204, and 205 in August~2024~\cite{NIST_PQC2024}.
+
+While public-key schemes face a clear and present danger, the impact of
+quantum computation on \emph{symmetric-key} cryptography has long been
+considered more modest.  Grover's unstructured search
+algorithm~\cite{Grover1996} provides a quadratic speedup for exhaustive
+key search, effectively halving the security level of any block cipher.
+The conventional wisdom holds that simply doubling the key length---for
+instance, migrating from AES-128 to AES-256---suffices to maintain
+adequate security margins against a quantum
+adversary~\cite{NIST_PQC2024, Bernstein2009}.
+
+% --- Specific Problem ---
+This comfortable picture, however, rests on an implicit assumption: that
+generic search is the \emph{only} meaningful quantum speedup available
+against symmetric constructions.  A series of striking results beginning
+with Kuwakado and Morii~\cite{Kuwakado2010, Kuwakado2012} has shown this
+assumption to be false.  When an adversary is granted quantum
+superposition access to a cryptographic oracle---the so-called Q2
+model~\cite{BonehZhandry2013, Gagliardoni2016}---certain classical
+symmetric schemes admit \emph{exponential} quantum speedups that far
+exceed Grover's quadratic barrier.  The enabling mechanism is not
+unstructured search but rather \emph{quantum period finding}, most
+notably via Simon's algorithm~\cite{Simon1997}.
+
+% --- Existing Approaches (Literature Review) ---
+Simon's algorithm, introduced in 1994 and refined in 1997, was the first
+quantum algorithm to demonstrate a provable exponential separation
+between quantum and classical query complexity in an oracle
+setting~\cite{Simon1997}.  It solves the hidden-period problem---given a
+function $f:\{0,1\}^n\to\{0,1\}^n$ with the promise $f(x) = f(x \oplus
+s)$ for a secret $s$, find $s$---in $O(n)$ quantum queries, whereas any
+classical probabilistic algorithm requires
+$\Omega(2^{n/2})$~\cite{Simon1997}.  Originally viewed as a
+complexity-theoretic curiosity, Simon's algorithm has since found
+powerful applications in symmetric-key cryptanalysis.
+
+Kuwakado and Morii pioneered this line of work by constructing a quantum
+polynomial-time distinguisher for 3-round Feistel ciphers~\cite{Kuwakado2010},
+then extending it to a full key-recovery attack on the Even--Mansour
+construction~\cite{Kuwakado2012}.  The Even--Mansour cipher,
+$E_{k_1,k_2}(x) = P(x \oplus k_1) \oplus k_2$ for a public permutation~$P$,
+is a foundational ``minimalist'' block cipher~\cite{EvenMansour1997,
+Dunkelman2012} whose classical security was considered well understood.
+The quantum attack constructs $f(x)= E(x) \oplus P(x)$, which satisfies
+Simon's promise with period $s = k_1$, enabling key recovery in $O(n)$
+queries.
+
+At CRYPTO~2016, Kaplan, Leurent, Leverrier, and Naya-Plasencia
+dramatically expanded the scope of these
+attacks~\cite{Kaplan2016}.  They showed that Simon's algorithm breaks a
+wide array of classically secure symmetric constructions in the Q2 model,
+including CBC-MAC, PMAC, GMAC, GCM, OCB, and numerous CAESAR
+candidates.  Their work also introduced the first quantum \emph{slide
+attack}, demonstrating an exponential acceleration of the classical slide
+technique of Biryukov and Wagner~\cite{Biryukov1999} when applied to
+key-alternating ciphers with identical round keys.  Classically, the
+slide attack requires $O(2^{n/2})$ known plaintexts to find a ``slide
+pair'' (two plaintext--ciphertext pairs offset by one round); the quantum
+variant recovers the key in $O(n)$ queries regardless of the number of
+rounds.
+
+Subsequent work has extended quantum slide attacks in several directions.
+Bonnetain, Naya-Plasencia, and Schrottenloher~\cite{Bonnetain2019}
+generalised the approach to \emph{sliding with a twist},
+\emph{complementation slide}, and \emph{mirror slidex} techniques,
+achieving up to four-round self-similarity with cost at most quadratic in
+the block size.  Leander and May~\cite{Leander2017} combined Grover's
+search with Simon's period finding to break the FX construction (key
+whitening), showing that adding whitening keys does not significantly
+improve quantum security.  Dong, Dong, and Wang~\cite{Dong2020}
+converted classical advanced slide attacks to their quantum analogues,
+breaking 2/4K-Feistel and 2/4K-DES in polynomial time and improving
+attacks on the Russian GOST standard.
+
+The Luby--Rackoff theorem~\cite{LubyRackoff1988} establishes that a
+3-round Feistel network with pseudorandom round functions is a
+pseudorandom permutation against classical chosen-plaintext attacks.
+Kuwakado and Morii's result~\cite{Kuwakado2010} shows that this guarantee
+completely collapses in the Q2 model, as a polynomial-time quantum
+distinguisher exists for exactly 3~rounds.
+
+% --- Limitation / Gap / Tension ---
+Despite the theoretical significance of these results, their practical
+implications remain incompletely understood.  Bonnetain and
+Jaques~\cite{Bonnetain2020} presented the first concrete resource
+estimates for quantum period-finding attacks against real ciphers
+(Chaskey, PRINCE, Elephant), concluding that the qubit counts are
+comparable to those required for breaking RSA-2048---a sobering
+observation.  However, few works provide end-to-end implementations of
+these attacks as executable quantum circuits, making it difficult for
+practitioners to build intuition about their mechanics and for educators
+to convey their significance.  Moreover, the comparative structure of
+these attacks---how the same algorithmic primitive (Simon's algorithm)
+manifests differently across Even--Mansour, Feistel, and slide
+settings---has not been presented in a unified, reproducible framework.
+
+% --- Pivot / Motivation for New Approach ---
+In this work, we bridge this gap by providing a complete, executable
+implementation of quantum period-finding attacks on three canonical
+symmetric constructions: the Even--Mansour cipher, the 3-round Feistel
+network, and the iterated key-alternating cipher (via quantum slide
+attack).  All three attacks are unified under a common framework centred
+on Simon's algorithm, implemented as quantum circuits simulated using the
+Qiskit statevector backend~\cite{Qiskit2024}.  This approach enables
+direct comparison of oracle construction techniques, query complexity, and
+key-recovery procedures across fundamentally different cipher
+architectures.
+
+% --- Scope and Assumptions ---
+We restrict our analysis to the Q2 chosen-plaintext model, where the
+adversary can query the encryption oracle in quantum
+superposition~\cite{BonehZhandry2013}.  Block sizes are kept small
+(4--8~bits) for simulation feasibility on classical hardware;
+nonetheless, the algorithmic structure and query complexity of all
+attacks scale identically to their asymptotic descriptions.  We do not
+consider Grover-based attacks, chosen-ciphertext models, or
+fault-tolerant quantum hardware constraints, as these lie outside the
+scope of the present study.
+
+% --- Contribution Statement ---
+Our contributions are as follows:
+\begin{enumerate}
+    \item We provide the first unified, open-source implementation of
+    Simon's algorithm applied to three distinct symmetric cipher
+    families---Even--Mansour, 3-round Feistel, and iterated slide
+    ciphers---using a common quantum oracle abstraction.
+
+    \item We demonstrate, via executable simulation, that the quantum
+    slide attack on an $r$-round iterated cipher achieves $O(n)$ key
+    recovery independently of~$r$, providing concrete evidence that
+    increasing round count is not a defence against quantum adversaries
+    with access to the round function.
+
+    \item We present a comparative analysis of oracle construction
+    techniques (truth-table synthesis vs.\ direct CNOT construction) and
+    their circuit-level costs, offering practical guidance for
+    quantum cryptanalysis implementations.
+\end{enumerate}
+
+% --- Significance and Impact ---
+These results have implications for both the theoretical understanding
+and practical evaluation of post-quantum symmetric security.  Our
+framework serves as a reference implementation for researchers studying
+quantum attacks on block ciphers, and as a pedagogical tool for
+conveying the power of quantum period finding beyond the standard
+Grover-centric narrative that dominates current post-quantum security
+guidance.
+
+% --- Roadmap ---
+The remainder of this paper is organised as follows.
+Section~\ref{sec:background} establishes the mathematical background and
+notation.  Section~\ref{sec:methods} describes our implementation
+methodology, including oracle construction and simulation infrastructure.
+Section~\ref{sec:results} presents experimental results across all three
+attack families.  Section~\ref{sec:discussion} discusses implications and
+limitations.  Section~\ref{sec:conclusion} concludes.
+
+
+% ============================================================
+% SECTION 2: BACKGROUND
+% ============================================================
+\section{Background}\label{sec:background}
+
+% --- Define the Physical System / Model ---
+\subsection{Quantum Computing Primitives}
+
+We work within the standard circuit model of quantum
+computation~\cite{NielsenChuang2010}.  A quantum computer operates on
+$n$-qubit registers, each inhabiting the Hilbert space
+$\mathcal{H}=(\mathbb{C}^2)^{\otimes n}$, with dimension $2^n$.  A
+computation consists of preparing an initial state
+$|0\rangle^{\otimes n}$, applying a sequence of unitary gates (drawn from
+a universal gate set, e.g., $\{H, \text{CNOT}, T\}$), and performing
+projective measurements in the computational basis.
+
+A quantum oracle for a classical function $f:\{0,1\}^n\to\{0,1\}^m$ is a
+unitary operator $U_f$ acting on $n+m$ qubits as
+\begin{equation}\label{eq:oracle}
+    U_f |x\rangle|y\rangle = |x\rangle|y \oplus f(x)\rangle,
+\end{equation}
+where $\oplus$ denotes bitwise XOR.  In the Q2 attack model, the
+adversary can query $U_f$ in quantum superposition---that is, prepare an
+arbitrary superposition over input states and observe the
+output~\cite{BonehZhandry2013, Gagliardoni2016}.
+
+% --- Establish Notation ---
+\subsection{Notation}
+
+We adopt the following conventions throughout.
+\begin{itemize}
+    \item Bitstrings are written in MSB-first (big-endian) order:
+    ``$1010$'' denotes the integer~10.
+    \item $\oplus$ denotes bitwise XOR over $\{0,1\}^n$.
+    \item $P:\{0,1\}^n\to\{0,1\}^n$ denotes a publicly known
+    permutation; $P^{-1}$ its inverse.
+    \item $S:\{0,1\}^n\to\{0,1\}^n$ denotes a publicly known substitution
+    box (S-box), also a permutation.
+    \item $k, k_1, k_2 \in \{0,1\}^n$ denote secret keys.
+    \item $H = \frac{1}{\sqrt{2}}\begin{psmallmatrix}1&1\\1&-1
+    \end{psmallmatrix}$ is the Hadamard gate.
+    \item $H^{\otimes n}$ is the $n$-fold tensor product of~$H$.
+    \item $\text{GF}(2)$ is the Galois field with two elements;
+    all linear algebra is performed modulo~2.
+\end{itemize}
+
+% --- Present Core Equations ---
+\subsection{Simon's Problem and Algorithm}
+
+\textbf{Simon's problem.}\quad Given oracle access to
+$f:\{0,1\}^n\to\{0,1\}^n$ with the promise that there exists
+$s\in\{0,1\}^n$ such that
+\begin{equation}\label{eq:simon_promise}
+    f(x) = f(y) \iff x \oplus y \in \{0^n, s\},
+\end{equation}
+determine~$s$.  When $s=0^n$, the function is one-to-one; otherwise it
+is two-to-one~\cite{Simon1997}.
+
+\textbf{Simon's circuit.}\quad One round of Simon's algorithm proceeds
+as follows:
+\begin{equation}\label{eq:simon_circuit}
+    |0^n\rangle|0^n\rangle
+    \xrightarrow{H^{\otimes n}\otimes I}
+    \frac{1}{\sqrt{2^n}}\sum_{x}|x\rangle|0^n\rangle
+    \xrightarrow{U_f}
+    \frac{1}{\sqrt{2^n}}\sum_{x}|x\rangle|f(x)\rangle
+    \xrightarrow{H^{\otimes n}\otimes I}
+    \text{(measure first register)}.
+\end{equation}
+Measurement yields a uniformly random $y\in\{0,1\}^n$ satisfying
+$y\cdot s = 0 \pmod{2}$, where $y\cdot s = \bigoplus_{i} y_i \wedge
+s_i$ is the inner product over $\text{GF}(2)$~\cite{NielsenChuang2010}.
+
+\textbf{Classical post-processing.}\quad After collecting $O(n)$
+linearly independent equations $\{y_i \cdot s = 0\}$, Gaussian
+elimination over $\text{GF}(2)$ recovers $s$ from the null space of the
+resulting matrix~\cite{Simon1997}.  Note that standard floating-point
+linear algebra (e.g., \texttt{numpy.linalg.matrix\_rank}) yields
+incorrect results over $\text{GF}(2)$, as $[1,1]=[1,0]+[0,1]\pmod{2}$
+but these are linearly independent over~$\mathbb{R}$.
+
+% --- Explain Key Mechanisms / Algorithms ---
+\subsection{Target Cipher Constructions}
+
+We consider three canonical symmetric constructions, each broken by a
+distinct application of Simon's algorithm.
+
+\subsubsection{The Even--Mansour Cipher}
+
+The Even--Mansour cipher~\cite{EvenMansour1997} is defined as
+\begin{equation}\label{eq:em}
+    E_{k_1,k_2}(x) = P(x \oplus k_1) \oplus k_2,
+\end{equation}
+where $P$ is a publicly known permutation.  Its classical security was
+established with a tight $T = \Omega(2^n/D)$ bound for $D$ known
+plaintexts~\cite{Dunkelman2012}.  The quantum attack~\cite{Kuwakado2012}
+defines $f(x) = E(x) \oplus P(x) = P(x \oplus k_1) \oplus k_2 \oplus
+P(x)$, which satisfies Simon's promise with period $s = k_1$.
+After recovering $k_1$, the second key follows as $k_2 = E(0) \oplus
+P(k_1)$.
+
+\subsubsection{The 3-Round Feistel Network}
+
+A 3-round Feistel network with keyed round function $F(x) = S[x \oplus
+k]$ encrypts $(L,R)$ via~\cite{LubyRackoff1988}:
+\begin{equation}\label{eq:feistel}
+    (L_i, R_i) = (R_{i-1},\ L_{i-1} \oplus F(R_{i-1})), \quad
+    i=1,2,3.
+\end{equation}
+The quantum attack~\cite{Kuwakado2010, Kaplan2016} constructs
+$f(x) = E_L(x,0) \oplus E_L(x,1)$, where $E_L$ denotes the left half
+of the ciphertext.  Algebraic analysis reveals that $f$ satisfies
+Simon's promise with period $s = S[k] \oplus S[1 \oplus k]$.
+The recovered period $s$ reduces the key space to a small candidate set,
+from which the true key is identified via brute force.
+
+\subsubsection{The Iterated Key-Alternating Cipher (Slide Attack)}
+
+The iterated cipher applies the same round function $r$ times:
+\begin{equation}\label{eq:slide}
+    E_k(x) = F_k^r(x), \quad F_k(x) = P(x \oplus k).
+\end{equation}
+Classically, the slide attack~\cite{Biryukov1999, Biryukov2000} finds a
+``slide pair'' in $O(2^{n/2})$ queries, independent of $r$.  The quantum
+slide attack~\cite{Kaplan2016, Bonnetain2019} constructs
+$f(x) = F_k(x) \oplus P(x) = P(x\oplus k) \oplus P(x)$,
+which has period $s = k$ since $f(x\oplus k) = P(x) \oplus P(x\oplus k)
+= f(x)$.  Simon's algorithm recovers $k$ in $O(n)$ queries, making the
+number of rounds~$r$ cryptographically irrelevant.
+
+% --- Clarify Assumptions and Constraints ---
+\subsection{Threat Model and Assumptions}
+
+All attacks in this work operate under the Q2 chosen-plaintext attack
+(qCPA) model~\cite{BonehZhandry2013, Gagliardoni2016}, wherein the
+adversary can query the encryption oracle in quantum superposition.
+Formally, the adversary prepares $|x\rangle|0\rangle$ and obtains
+$|x\rangle|E_k(x)\rangle$ for all $x$ simultaneously via a single
+oracle call.
+
+This model is strictly stronger than the Q1 model (classical queries to
+a quantum adversary) and is motivated by scenarios where the
+cryptographic device processes quantum states---for example, future
+quantum-enabled hardware, or fault-injection settings where the cipher's
+internal state is accessible in
+superposition~\cite{Kaplan2016,Bonnetain2020}.  We note that Q2 attacks
+are not currently realisable on existing quantum hardware; they
+constitute an asymptotic threat model for evaluating the long-term
+post-quantum security of symmetric designs.
+
+We further assume that all public components ($P$, $S$, circuit
+structure) are known to the adversary.  Block sizes in our simulations
+range from 4 to 8~bits, constrained by the exponential cost of
+statevector simulation ($2^{2n}$ amplitudes for an $n$-bit cipher).
+The algorithms themselves are dimension-independent: their $O(n)$
+query complexity holds for arbitrary~$n$.
+
+% --- Bridge to Methods ---
+\subsection{From Theory to Implementation}
+
+Translating the theoretical attacks described above into executable
+quantum circuits requires two key engineering decisions:
+
+\begin{enumerate}
+    \item \textbf{Oracle construction.}\quad The quantum oracle $U_f$
+    must be synthesised as a reversible circuit.  We employ two
+    approaches: (a)~\emph{truth-table synthesis}, which enumerates all
+    input--output pairs and implements $U_f$ via multi-controlled X gates
+    (MCX), and (b)~\emph{direct CNOT construction}, which exploits the
+    algebraic structure of Simon's promise to build the oracle with
+    $O(n)$ gates.  Truth-table synthesis is general but scales as
+    $O(2^n)$ gates; direct construction is efficient but requires
+    knowledge of the period~$s$.
+
+    \item \textbf{Simulation backend.}\quad We use Qiskit's statevector
+    simulator~\cite{Qiskit2024}, which provides exact amplitudes and
+    deterministic sampling.  This avoids shot noise and allows
+    precise verification of the algorithm's correctness, at the cost of
+    $O(2^{2n})$ memory.
+\end{enumerate}
+
+All code is implemented in Python~3.10+ using Qiskit and NumPy, with
+GF(2) linear algebra performed by a custom Gaussian elimination routine
+to avoid the pitfalls of floating-point rank computation over
+$\text{GF}(2)$.
+
+% --- What Is Not Covered ---
+\subsection{Scope Limitations}
+
+We do not consider the following topics, which lie outside the scope of
+this work:
+\begin{itemize}
+    \item \textbf{Grover-based attacks} or hybrid Grover--Simon
+    constructions~\cite{Leander2017}.
+    \item \textbf{Chosen-ciphertext (Q2-CCA)} or
+    \textbf{related-key} attack models.
+    \item \textbf{Quantum resource estimation} (T-gate counts,
+    error-correction overhead, qubit budgets) for fault-tolerant
+    implementations~\cite{Bonnetain2020}.
+    \item \textbf{Post-quantum secure symmetric constructions} or
+    countermeasures against Q2 attacks.
+    \item \textbf{Modes of operation} (CBC-MAC, GCM, OCB) beyond
+    the underlying block cipher primitives.
+\end{itemize}
+We restrict to the core block cipher constructions where the connection
+between cipher structure and Simon's promise is most transparent.
+
+
+% ============================================================
+% REFERENCES
+% ============================================================
+\begin{thebibliography}{99}
+
+\bibitem{Shor1997}
+P.~W. Shor,
+``Polynomial-time algorithms for prime factorization and discrete
+logarithms on a quantum computer,''
+\textit{SIAM J. Comput.}, vol.~26, no.~5, pp.~1484--1509, 1997.
+\texttt{arXiv:quant-ph/9508027}.
+
+\bibitem{NIST_PQC2024}
+National Institute of Standards and Technology,
+``Post-Quantum Cryptography Standardization,''
+FIPS 203, 204, 205, August 2024.
+\url{https://csrc.nist.gov/projects/post-quantum-cryptography}.
+
+\bibitem{Grover1996}
+L.~K. Grover,
+``A fast quantum mechanical algorithm for database search,''
+in \textit{Proc.\ 28th ACM Symposium on Theory of Computing (STOC)},
+pp.~212--219, 1996.
+
+\bibitem{Bernstein2009}
+D.~J. Bernstein,
+``Cost analysis of hash collisions: Will quantum computers make
+SHARCS obsolete?''
+in \textit{Workshop Record of SHARCS}, 2009.
+
+\bibitem{Kuwakado2010}
+H.~Kuwakado and M.~Morii,
+``Quantum distinguisher between the 3-round Feistel cipher and the
+random permutation,''
+in \textit{Proc.\ IEEE International Symposium on Information Theory
+(ISIT)}, pp.~2682--2685, 2010.
+
+\bibitem{Kuwakado2012}
+H.~Kuwakado and M.~Morii,
+``Security on the quantum-type Even-Mansour cipher,''
+in \textit{Proc.\ International Symposium on Information Theory and
+its Applications (ISITA)}, pp.~312--316, 2012.
+
+\bibitem{BonehZhandry2013}
+D.~Boneh and M.~Zhandry,
+``Quantum-secure message authentication codes,''
+in \textit{Advances in Cryptology---EUROCRYPT 2013},
+LNCS, vol.~7881, pp.~592--608, Springer, 2013.
+
+\bibitem{Gagliardoni2016}
+T.~Gagliardoni, A.~H\"{u}lsing, and C.~Schaffner,
+``Semantic security and indistinguishability in the quantum world,''
+in \textit{Advances in Cryptology---CRYPTO 2016},
+LNCS, vol.~9816, pp.~60--89, Springer, 2016.
+
+\bibitem{Simon1997}
+D.~R. Simon,
+``On the power of quantum computation,''
+\textit{SIAM J. Comput.}, vol.~26, no.~5, pp.~1474--1483, 1997.
+
+\bibitem{Kaplan2016}
+M.~Kaplan, G.~Leurent, A.~Leverrier, and M.~Naya-Plasencia,
+``Breaking symmetric cryptosystems using quantum period finding,''
+in \textit{Advances in Cryptology---CRYPTO 2016},
+LNCS, vol.~9815, pp.~207--237, Springer, 2016.
+\texttt{arXiv:1602.05973}.
+
+\bibitem{EvenMansour1997}
+S.~Even and Y.~Mansour,
+``A construction of a cipher from a single pseudorandom permutation,''
+\textit{J. Cryptology}, vol.~10, no.~3, pp.~151--162, 1997.
+
+\bibitem{Dunkelman2012}
+O.~Dunkelman, N.~Keller, and A.~Shamir,
+``Minimalism in cryptography: The Even-Mansour scheme revisited,''
+in \textit{Advances in Cryptology---EUROCRYPT 2012},
+LNCS, vol.~7237, pp.~336--354, Springer, 2012.
+
+\bibitem{Biryukov1999}
+A.~Biryukov and D.~Wagner,
+``Slide attacks,''
+in \textit{Fast Software Encryption (FSE 1999)},
+LNCS, vol.~1636, pp.~245--259, Springer, 1999.
+
+\bibitem{Biryukov2000}
+A.~Biryukov and D.~Wagner,
+``Advanced slide attacks,''
+in \textit{Advances in Cryptology---EUROCRYPT 2000},
+LNCS, vol.~1807, pp.~589--606, Springer, 2000.
+
+\bibitem{Bonnetain2019}
+X.~Bonnetain, M.~Naya-Plasencia, and A.~Schrottenloher,
+``On quantum slide attacks,''
+in \textit{Selected Areas in Cryptography---SAC 2019},
+LNCS, vol.~11959, pp.~492--519, Springer, 2019.
+
+\bibitem{Leander2017}
+G.~Leander and A.~May,
+``Grover meets Simon---Quantumly attacking the FX-construction,''
+in \textit{Advances in Cryptology---ASIACRYPT 2017},
+LNCS, vol.~10625, pp.~161--178, Springer, 2017.
+
+\bibitem{Dong2020}
+X.~Dong, B.~Dong, and X.~Wang,
+``Quantum attacks on some Feistel block ciphers,''
+\textit{Des.\ Codes Cryptogr.}, vol.~88, pp.~1179--1203, 2020.
+
+\bibitem{LubyRackoff1988}
+M.~Luby and C.~Rackoff,
+``How to construct pseudorandom permutations from pseudorandom
+functions,''
+\textit{SIAM J. Comput.}, vol.~17, no.~2, pp.~373--386, 1988.
+
+\bibitem{Bonnetain2020}
+X.~Bonnetain and S.~Jaques,
+``Quantum period finding against symmetric primitives in practice,''
+\textit{IACR Trans.\ Cryptogr.\ Hardw.\ Embed.\ Syst.}, vol.~2022,
+no.~1, pp.~1--27, 2022.
+\texttt{IACR ePrint 2020/1418}.
+
+\bibitem{NielsenChuang2010}
+M.~A. Nielsen and I.~L. Chuang,
+\textit{Quantum Computation and Quantum Information},
+10th Anniversary Edition.
+Cambridge University Press, 2010.
+
+\bibitem{Qiskit2024}
+Qiskit Contributors,
+``Qiskit: An open-source framework for quantum computing,'' 2024.
+\url{https://qiskit.org}.
+
+\bibitem{Zhandry2016}
+M.~Zhandry,
+``A note on quantum-secure PRPs,''
+Cryptology ePrint Archive, Report 2016/1076, 2016.
+
+\end{thebibliography}
+
+\end{document}
