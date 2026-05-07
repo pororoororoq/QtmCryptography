@@ -24,6 +24,32 @@ Implementation and Comparative Analysis Using Simon's Algorithm}
 \begin{document}
 \maketitle
 
+\begin{abstract}
+Simon's algorithm solves the hidden period problem in $O(n)$ quantum
+queries---exponentially faster than the $O(2^{n/2})$ classical birthday
+bound.  We exploit this to break three symmetric cipher constructions:
+Even-Mansour, 3-round Feistel networks, and iterated slide ciphers,
+recovering full keys in $O(n)$ queries each.
+
+We then extend the attacks in four directions.  First, a
+Grover-meet-Simon hybrid breaks the FX construction (including a
+PRINCE-like cipher with the real PRINCE S-box) in $O(n \cdot 2^{n/2})$,
+far below its $2n$-bit key space.  Second, an error-tolerant variant
+recovers keys under 20\% measurement noise using majority-vote decoding.
+Third, a Q1-model attack replaces quantum queries to the cipher with
+$O(2^{n/2})$ classical queries plus local quantum processing---no
+quantum network channel required.  Fourth, we simulate all attacks under
+realistic hardware noise (IBM Heron, generic NISQ, and projected future
+devices) and estimate fault-tolerant resource costs from $n=4$ through
+AES-256.
+
+All implementations use Qiskit statevector simulation with $\mathrm{GF}(2)$
+Gaussian elimination for the linear algebra---standard floating-point
+rank computation gives wrong answers over $\mathbb{F}_2$, a bug we
+document.  The codebase includes 92 passing tests and Manim animations
+for each attack.
+\end{abstract}
+
 % ============================================================
 % SECTION 1: INTRODUCTION
 % ============================================================
