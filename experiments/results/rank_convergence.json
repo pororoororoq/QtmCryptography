@@ -1,0 +1,752 @@
+{
+  "3": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 0.79
+      },
+      "2": {
+        "fraction_solved": 0.33,
+        "mean_rank": 1.29
+      },
+      "3": {
+        "fraction_solved": 0.69,
+        "mean_rank": 1.69
+      },
+      "4": {
+        "fraction_solved": 0.83,
+        "mean_rank": 1.83
+      },
+      "5": {
+        "fraction_solved": 0.93,
+        "mean_rank": 1.93
+      },
+      "6": {
+        "fraction_solved": 0.97,
+        "mean_rank": 1.97
+      },
+      "7": {
+        "fraction_solved": 0.98,
+        "mean_rank": 1.98
+      },
+      "8": {
+        "fraction_solved": 0.99,
+        "mean_rank": 1.99
+      },
+      "9": {
+        "fraction_solved": 0.99,
+        "mean_rank": 1.99
+      },
+      "10": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "11": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "12": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "13": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "14": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 2.0
+      }
+    },
+    "n_trials": 100
+  },
+  "4": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 0.88
+      },
+      "2": {
+        "fraction_solved": 0.0,
+        "mean_rank": 1.63
+      },
+      "3": {
+        "fraction_solved": 0.32,
+        "mean_rank": 2.18
+      },
+      "4": {
+        "fraction_solved": 0.55,
+        "mean_rank": 2.5
+      },
+      "5": {
+        "fraction_solved": 0.73,
+        "mean_rank": 2.71
+      },
+      "6": {
+        "fraction_solved": 0.92,
+        "mean_rank": 2.92
+      },
+      "7": {
+        "fraction_solved": 0.96,
+        "mean_rank": 2.96
+      },
+      "8": {
+        "fraction_solved": 0.99,
+        "mean_rank": 2.99
+      },
+      "9": {
+        "fraction_solved": 0.99,
+        "mean_rank": 2.99
+      },
+      "10": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "11": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "12": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "13": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "14": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 3.0
+      }
+    },
+    "n_trials": 100
+  },
+  "5": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 0.9666666666666667
+      },
+      "2": {
+        "fraction_solved": 0.0,
+        "mean_rank": 1.8166666666666667
+      },
+      "3": {
+        "fraction_solved": 0.0,
+        "mean_rank": 2.6166666666666667
+      },
+      "4": {
+        "fraction_solved": 0.36666666666666664,
+        "mean_rank": 3.2
+      },
+      "5": {
+        "fraction_solved": 0.6166666666666667,
+        "mean_rank": 3.566666666666667
+      },
+      "6": {
+        "fraction_solved": 0.7833333333333333,
+        "mean_rank": 3.783333333333333
+      },
+      "7": {
+        "fraction_solved": 0.8666666666666667,
+        "mean_rank": 3.8666666666666667
+      },
+      "8": {
+        "fraction_solved": 0.8666666666666667,
+        "mean_rank": 3.8666666666666667
+      },
+      "9": {
+        "fraction_solved": 0.9,
+        "mean_rank": 3.9
+      },
+      "10": {
+        "fraction_solved": 0.9666666666666667,
+        "mean_rank": 3.966666666666667
+      },
+      "11": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "12": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "13": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "14": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 4.0
+      }
+    },
+    "n_trials": 60
+  },
+  "6": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 0.9
+      },
+      "2": {
+        "fraction_solved": 0.0,
+        "mean_rank": 1.8333333333333333
+      },
+      "3": {
+        "fraction_solved": 0.0,
+        "mean_rank": 2.7333333333333334
+      },
+      "4": {
+        "fraction_solved": 0.0,
+        "mean_rank": 3.5
+      },
+      "5": {
+        "fraction_solved": 0.2,
+        "mean_rank": 4.0
+      },
+      "6": {
+        "fraction_solved": 0.5333333333333333,
+        "mean_rank": 4.466666666666667
+      },
+      "7": {
+        "fraction_solved": 0.6666666666666666,
+        "mean_rank": 4.666666666666667
+      },
+      "8": {
+        "fraction_solved": 0.8666666666666667,
+        "mean_rank": 4.866666666666666
+      },
+      "9": {
+        "fraction_solved": 0.9,
+        "mean_rank": 4.9
+      },
+      "10": {
+        "fraction_solved": 0.9333333333333333,
+        "mean_rank": 4.933333333333334
+      },
+      "11": {
+        "fraction_solved": 0.9333333333333333,
+        "mean_rank": 4.933333333333334
+      },
+      "12": {
+        "fraction_solved": 0.9333333333333333,
+        "mean_rank": 4.933333333333334
+      },
+      "13": {
+        "fraction_solved": 0.9333333333333333,
+        "mean_rank": 4.933333333333334
+      },
+      "14": {
+        "fraction_solved": 0.9666666666666667,
+        "mean_rank": 4.966666666666667
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 5.0
+      }
+    },
+    "n_trials": 30
+  },
+  "7": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 1.0
+      },
+      "2": {
+        "fraction_solved": 0.0,
+        "mean_rank": 2.0
+      },
+      "3": {
+        "fraction_solved": 0.0,
+        "mean_rank": 3.0
+      },
+      "4": {
+        "fraction_solved": 0.0,
+        "mean_rank": 4.0
+      },
+      "5": {
+        "fraction_solved": 0.0,
+        "mean_rank": 4.7
+      },
+      "6": {
+        "fraction_solved": 0.3,
+        "mean_rank": 5.2
+      },
+      "7": {
+        "fraction_solved": 0.5,
+        "mean_rank": 5.5
+      },
+      "8": {
+        "fraction_solved": 0.7,
+        "mean_rank": 5.7
+      },
+      "9": {
+        "fraction_solved": 0.8,
+        "mean_rank": 5.8
+      },
+      "10": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "11": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "12": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "13": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "14": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 6.0
+      }
+    },
+    "n_trials": 10
+  },
+  "8": {
+    "data": {
+      "1": {
+        "fraction_solved": 0.0,
+        "mean_rank": 1.0
+      },
+      "2": {
+        "fraction_solved": 0.0,
+        "mean_rank": 2.0
+      },
+      "3": {
+        "fraction_solved": 0.0,
+        "mean_rank": 3.0
+      },
+      "4": {
+        "fraction_solved": 0.0,
+        "mean_rank": 4.0
+      },
+      "5": {
+        "fraction_solved": 0.0,
+        "mean_rank": 4.8
+      },
+      "6": {
+        "fraction_solved": 0.0,
+        "mean_rank": 5.8
+      },
+      "7": {
+        "fraction_solved": 0.6,
+        "mean_rank": 6.6
+      },
+      "8": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "9": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "10": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "11": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "12": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "13": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "14": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "15": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "16": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "17": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "18": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "19": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "20": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "21": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "22": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "23": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "24": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "25": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "26": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "27": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "28": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "29": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      },
+      "30": {
+        "fraction_solved": 1.0,
+        "mean_rank": 7.0
+      }
+    },
+    "n_trials": 5
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "3": {
+    "Future improved device": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 30
+    },
+    "IBM Heron (2024)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 30
+    },
+    "Generic NISQ (2023)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 30
+    }
+  },
+  "4": {
+    "Future improved device": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 20
+    },
+    "IBM Heron (2024)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 20
+    },
+    "Generic NISQ (2023)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 20
+    }
+  },
+  "5": {
+    "Future improved device": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 10
+    },
+    "IBM Heron (2024)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 10
+    },
+    "Generic NISQ (2023)": {
+      "success_rate": 1.0,
+      "mean_valid_fraction": 1.0,
+      "n_trials": 10
+    }
+  }
+}
