@@ -54,7 +54,7 @@ def experiment_success_rate_vs_n():
     print("=" * 70)
 
     results = {}
-    configs = [(3, 50), (4, 50), (5, 20)]
+    configs = [(3, 50), (4, 50), (5, 10)]
 
     for n, trials in configs:
         N = 1 << n
@@ -63,11 +63,6 @@ def experiment_success_rate_vs_n():
         _flush(f"  n={n} ({trials} trials): ")
 
         # Simon's basic
-        ok = sum(1 for t in range(trials)
-                 if run_simons_algorithm(
-                     build_oracle_from_secret(format(rng.integers(1, N), f"0{n}b")), n)
-                 == format(rng.integers(1, N), f"0{n}b"))
-        # Re-do properly (rng consumed)
         rng2 = np.random.default_rng(42)
         simon_ok = 0
         for t in range(trials):
@@ -196,7 +191,7 @@ def experiment_noise_phase_transition():
     print("EXPERIMENT 3: Noise Phase Transition")
     print("=" * 70)
 
-    configs = [(3, 50), (4, 50), (5, 30), (6, 15)]
+    configs = [(3, 50), (4, 50), (5, 20)]
     epsilons = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]
     results = {}
 
@@ -245,7 +240,7 @@ def experiment_slide_round_independence():
     print("EXPERIMENT 4: Slide Attack Round-Independence")
     print("=" * 70)
 
-    configs = [(3, 30), (4, 30), (5, 10)]
+    configs = [(3, 30), (4, 20)]
     round_counts = [1, 2, 5, 10, 20, 50, 100]
     results = {}
 

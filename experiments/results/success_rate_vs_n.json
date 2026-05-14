@@ -1,0 +1,26 @@
+{
+  "3": {
+    "n": 3,
+    "n_trials": 50,
+    "simon_basic": 1.0,
+    "even_mansour": 1.0,
+    "feistel_3round": null,
+    "slide_5rounds": 0.4
+  },
+  "4": {
+    "n": 4,
+    "n_trials": 50,
+    "simon_basic": 1.0,
+    "even_mansour": 1.0,
+    "feistel_3round": 1.0,
+    "slide_5rounds": 1.0
+  },
+  "5": {
+    "n": 5,
+    "n_trials": 10,
+    "simon_basic": 1.0,
+    "even_mansour": 1.0,
+    "feistel_3round": 1.0,
+    "slide_5rounds": 1.0
+  }
+}
