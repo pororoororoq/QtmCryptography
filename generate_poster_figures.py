@@ -561,7 +561,7 @@ def fig_simons_worked_example():
         ax.axis("off")
 
     # Panel 1: The hidden function truth table
-    ax1.set_xlim(0, 4)
+    ax1.set_xlim(0, 5.5)
     ax1.set_ylim(-0.5, 9)
     ax1.text(2, 8.5, "Step 1: Hidden Function", fontsize=13,
              ha="center", color=COLORS["dark"])
@@ -599,17 +599,19 @@ def fig_simons_worked_example():
             ax1.text(2.8, y, fx_val, fontsize=11, ha="center", va="center",
                      color=COLORS["navy"], family="monospace")
 
-    # Draw matching pairs
+    # Draw matching pairs with clean brackets
     pairs = [(1, 5), (2, 6), (3, 7), (4, 8)]
-    for a, b in pairs:
+    bracket_xs = [4.0, 4.5, 5.0, 5.5]
+    pair_labels = ["000→010", "001→110", "010→000", "011→100"]
+    for (a, b), bx in zip(pairs, bracket_xs):
         ya = 7.0 - a * 0.75
         yb = 7.0 - b * 0.75
-        ax1.annotate("", xy=(3.7, yb), xytext=(3.7, ya),
-                     arrowprops=dict(arrowstyle="<->", color=COLORS["coral"],
-                                     linewidth=1, connectionstyle="arc3,rad=0.3"))
+        ax1.plot([3.55, bx], [ya, ya], color=COLORS["coral"], linewidth=1.2)
+        ax1.plot([3.55, bx], [yb, yb], color=COLORS["coral"], linewidth=1.2)
+        ax1.plot([bx, bx], [ya, yb], color=COLORS["coral"], linewidth=1.2)
 
-    ax1.text(4.0, 3.5, "f(x)=f(x⊕101)", fontsize=8, color=COLORS["coral"],
-             rotation=90, va="center")
+    ax1.text(2, -0.2, "f(x) = f(x ⊕ 101)  →  period s = 101", fontsize=9,
+             ha="center", color=COLORS["coral"])
 
     # Panel 2: Quantum measurements → equations
     ax2.set_xlim(0, 5)
