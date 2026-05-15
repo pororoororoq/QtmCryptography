@@ -19,14 +19,12 @@ OUT = Path("poster_figures")
 OUT.mkdir(exist_ok=True)
 
 COLORS = {
-    "blue":   "#2563EB",
-    "red":    "#DC2626",
-    "green":  "#16A34A",
-    "orange": "#EA580C",
-    "purple": "#7C3AED",
-    "teal":   "#0D9488",
-    "gray":   "#6B7280",
-    "dark":   "#1E293B",
+    "dark":   "#3D4028",
+    "sage":   "#A5A685",
+    "mint":   "#CDDBCE",
+    "teal":   "#90CBC5",
+    "navy":   "#013440",
+    "coral":  "#F96C77",
 }
 
 def style_ax(ax, title, xlabel, ylabel):
@@ -46,7 +44,7 @@ def fig_noise_phase_transition():
     fig, ax = plt.subplots(figsize=(7, 5))
 
     markers = ["o", "s", "D"]
-    colors = [COLORS["blue"], COLORS["red"], COLORS["orange"]]
+    colors = [COLORS["navy"], COLORS["teal"], COLORS["sage"]]
     for i, (n, rates) in enumerate(sorted(data.items(), key=lambda x: int(x[0]))):
         eps = [float(e) * 100 for e in sorted(rates.keys(), key=float)]
         success = [rates[e] * 100 for e in sorted(rates.keys(), key=float)]
@@ -54,12 +52,12 @@ def fig_noise_phase_transition():
                 linewidth=2.5, markersize=8, label=f"n = {n} bits",
                 zorder=3)
 
-    ax.axvspan(30, 42, alpha=0.12, color=COLORS["red"], zorder=0)
+    ax.axvspan(30, 42, alpha=0.15, color=COLORS["coral"], zorder=0)
     ax.annotate("Phase\ntransition", xy=(36, 72), fontsize=11,
-                color=COLORS["red"], ha="center", fontweight="normal")
+                color=COLORS["coral"], ha="center", fontweight="normal")
 
-    ax.axhline(y=50, color=COLORS["gray"], linestyle=":", linewidth=1, alpha=0.5)
-    ax.text(2, 52, "Random guessing", fontsize=9, color=COLORS["gray"])
+    ax.axhline(y=50, color=COLORS["sage"], linestyle=":", linewidth=1, alpha=0.5)
+    ax.text(2, 52, "Random guessing", fontsize=9, color=COLORS["sage"])
 
     style_ax(ax, "Noise Resilience: Sharp Phase Transition",
              "Measurement Noise Rate (%)", "Key Recovery Success (%)")
@@ -87,7 +85,7 @@ def fig_slide_round_independence():
         r_vals = [int(r) for r in rounds]
         success = [results[r]["success_rate"] * 100 for r in rounds]
         times = [results[r]["mean_time_s"] for r in rounds]
-        color = COLORS["blue"] if n_str == "3" else COLORS["red"]
+        color = COLORS["navy"] if n_str == "3" else COLORS["teal"]
         marker = "o" if n_str == "3" else "s"
 
         ax1.plot(r_vals, success, marker=marker, color=color,
@@ -106,8 +104,8 @@ def fig_slide_round_independence():
 
     ax1.annotate("Flat line = round count\nis irrelevant!",
                  xy=(50, 60), xytext=(10, 30),
-                 fontsize=10, color=COLORS["blue"],
-                 arrowprops=dict(arrowstyle="->", color=COLORS["blue"]),
+                 fontsize=10, color=COLORS["navy"],
+                 arrowprops=dict(arrowstyle="->", color=COLORS["navy"]),
                  fontweight="normal")
 
     style_ax(ax2, "Attack Time vs Round Count",
@@ -143,15 +141,15 @@ def fig_query_complexity():
     width = 0.35
 
     bars = ax.bar(x - width/2, means, width, yerr=stds, capsize=5,
-                  color=COLORS["blue"], alpha=0.85, label="Measured (mean ± std)",
+                  color=COLORS["navy"], alpha=0.85, label="Measured (mean ± std)",
                   zorder=3, edgecolor="white", linewidth=0.5)
     ax.bar(x + width/2, theoretical, width,
-           color=COLORS["gray"], alpha=0.4, label="Theoretical min (n−1)",
+           color=COLORS["sage"], alpha=0.5, label="Theoretical min (n−1)",
            zorder=3, edgecolor="white", linewidth=0.5)
 
     for i, (m, n) in enumerate(zip(means, n_vals)):
         ax.text(i - width/2, m + stds[i] + 0.3, f"{m/n:.2f}n",
-                ha="center", fontsize=9, fontweight="normal", color=COLORS["dark"])
+                ha="center", fontsize=9, fontweight="normal", color=COLORS["navy"])
 
     ax.set_xticks(x)
     ax.set_xticklabels([f"n={n}" for n in n_vals])
@@ -187,19 +185,19 @@ def fig_timing_curves():
             ns_em.append(n)
             times_em.append(entry["even_mansour_s"])
 
-    ax.semilogy(ns_simon, times_simon, "o-", color=COLORS["blue"],
+    ax.semilogy(ns_simon, times_simon, "o-", color=COLORS["navy"],
                 linewidth=2.5, markersize=8, label="Simon's (basic oracle)")
-    ax.semilogy(ns_em, times_em, "s-", color=COLORS["red"],
+    ax.semilogy(ns_em, times_em, "s-", color=COLORS["coral"],
                 linewidth=2.5, markersize=8, label="Even-Mansour (truth-table)")
 
     for n, t in zip(ns_simon, times_simon):
         label = f"{t:.2f}s" if t >= 0.1 else f"{t*1000:.0f}ms"
         ax.annotate(label, (n, t), textcoords="offset points",
-                    xytext=(10, 5), fontsize=9, color=COLORS["blue"])
+                    xytext=(10, 5), fontsize=9, color=COLORS["navy"])
     for n, t in zip(ns_em, times_em):
         label = f"{t:.1f}s" if t >= 1 else f"{t:.2f}s"
         ax.annotate(label, (n, t), textcoords="offset points",
-                    xytext=(10, -15), fontsize=9, color=COLORS["red"])
+                    xytext=(10, -15), fontsize=9, color=COLORS["coral"])
 
     style_ax(ax, "Simulation Time Scales Exponentially",
              "Key Size n (bits)", "Wall-Clock Time (seconds, log scale)")
@@ -220,7 +218,9 @@ def fig_rank_convergence():
 
     fig, ax = plt.subplots(figsize=(7, 5))
 
-    cmap = plt.cm.viridis
+    from matplotlib.colors import LinearSegmentedColormap
+    palette = [COLORS["navy"], COLORS["teal"], COLORS["mint"], COLORS["sage"], COLORS["dark"]]
+    cmap = LinearSegmentedColormap.from_list("poster", palette, N=256)
     n_keys = sorted(data.keys(), key=int)
     colors_list = [cmap(i / (len(n_keys) - 1)) for i in range(len(n_keys))]
 
@@ -238,10 +238,10 @@ def fig_rank_convergence():
         ax.plot(queries, fracs, "o-", color=colors_list[idx],
                 linewidth=2, markersize=5, label=f"n = {n_str}")
 
-    ax.axhline(y=50, color=COLORS["gray"], linestyle=":", linewidth=1, alpha=0.5)
-    ax.axhline(y=99, color=COLORS["green"], linestyle="--", linewidth=1, alpha=0.4)
-    ax.text(18, 52, "50%", fontsize=9, color=COLORS["gray"])
-    ax.text(18, 95, "99%", fontsize=9, color=COLORS["green"])
+    ax.axhline(y=50, color=COLORS["sage"], linestyle=":", linewidth=1, alpha=0.5)
+    ax.axhline(y=99, color=COLORS["teal"], linestyle="--", linewidth=1, alpha=0.4)
+    ax.text(18, 52, "50%", fontsize=9, color=COLORS["sage"])
+    ax.text(18, 95, "99%", fontsize=9, color=COLORS["teal"])
 
     style_ax(ax, "How Quickly Does Simon's Algorithm Converge?",
              "Number of Oracle Queries", "Trials Solved (%)")
@@ -265,7 +265,7 @@ def fig_success_rates():
 
     attacks = ["simon_basic", "even_mansour", "feistel_3round", "slide_5rounds"]
     labels = ["Simon's", "Even-Mansour", "3-Round Feistel", "Slide Attack"]
-    atk_colors = [COLORS["blue"], COLORS["red"], COLORS["green"], COLORS["orange"]]
+    atk_colors = [COLORS["navy"], COLORS["teal"], COLORS["sage"], COLORS["coral"]]
 
     ns = ["3", "4", "5"]
     x = np.arange(len(ns))
@@ -282,7 +282,7 @@ def fig_success_rates():
         for j, v in enumerate(vals):
             if data[ns[j]].get(atk) is None:
                 ax.text(x[j] + offset, 3, "N/A", ha="center", fontsize=8,
-                        color=COLORS["gray"], rotation=90)
+                        color=COLORS["sage"], rotation=90)
             elif v < 100:
                 ax.text(x[j] + offset, v + 2, f"{v:.0f}%", ha="center",
                         fontsize=9, fontweight="normal")
@@ -310,19 +310,19 @@ def fig_simon_vs_grover():
     grover_queries = [int(np.pi / 4 * 2 ** (n / 2)) for n in n_vals]
     classical = [2 ** n for n in n_vals]
 
-    ax.semilogy(n_vals, classical, "^--", color=COLORS["gray"],
+    ax.semilogy(n_vals, classical, "^--", color=COLORS["sage"],
                 linewidth=2, markersize=8, label="Classical brute force  O(2ⁿ)",
                 alpha=0.6)
-    ax.semilogy(n_vals, grover_queries, "s-", color=COLORS["orange"],
+    ax.semilogy(n_vals, grover_queries, "s-", color=COLORS["teal"],
                 linewidth=2.5, markersize=8, label="Grover's search  O(2^{n/2})")
-    ax.semilogy(n_vals, simon_queries, "o-", color=COLORS["blue"],
+    ax.semilogy(n_vals, simon_queries, "o-", color=COLORS["navy"],
                 linewidth=2.5, markersize=10, label="Simon's algorithm  O(n)")
 
     ax.fill_between(n_vals, simon_queries, grover_queries,
-                    alpha=0.1, color=COLORS["blue"])
+                    alpha=0.1, color=COLORS["navy"])
     ax.annotate("Exponential\ngap!",
                 xy=(64, 1e5), fontsize=13, fontweight="normal",
-                color=COLORS["blue"], ha="center")
+                color=COLORS["coral"], ha="center")
 
     style_ax(ax, "Simon's Algorithm vs Classical & Grover",
              "Key Size n (bits)", "Oracle Queries (log scale)")
@@ -346,7 +346,7 @@ def fig_resource_estimates():
     t_gates = [13.1e6, 104.9e6, 838.9e6]
 
     bars1 = ax1.bar(targets, [q / 1e6 for q in physical_qubits],
-                    color=[COLORS["blue"], COLORS["red"], COLORS["purple"]],
+                    color=[COLORS["teal"], COLORS["navy"], COLORS["dark"]],
                     alpha=0.85, edgecolor="white", linewidth=0.5, zorder=3)
     for bar, q in zip(bars1, physical_qubits):
         label = f"~{q/1e6:.1f}M" if q >= 1e6 else f"~{q/1e3:.0f}K"
@@ -357,7 +357,7 @@ def fig_resource_estimates():
              "", "Millions of Physical Qubits")
 
     bars2 = ax2.bar(targets, [t / 1e6 for t in t_gates],
-                    color=[COLORS["blue"], COLORS["red"], COLORS["purple"]],
+                    color=[COLORS["teal"], COLORS["navy"], COLORS["dark"]],
                     alpha=0.85, edgecolor="white", linewidth=0.5, zorder=3)
     for bar, t in zip(bars2, t_gates):
         ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 10,
@@ -381,7 +381,7 @@ def fig_prince_security():
     methods = ["Classical\nexhaustive", "Classical\nmeet-in-middle",
                "Quantum\nGrover", "Quantum\nGrover-meet-Simon"]
     bits = [127, 64, 64, 37]
-    colors = [COLORS["gray"], COLORS["gray"], COLORS["orange"], COLORS["red"]]
+    colors = [COLORS["sage"], COLORS["sage"], COLORS["teal"], COLORS["coral"]]
 
     bars = ax.bar(methods, bits, color=colors, alpha=0.85,
                   edgecolor="white", linewidth=0.5, zorder=3, width=0.6)
@@ -392,11 +392,11 @@ def fig_prince_security():
 
     ax.annotate("", xy=(3, 40), xytext=(0, 127),
                 arrowprops=dict(arrowstyle="->,head_width=0.4",
-                                color=COLORS["red"], linewidth=2.5))
+                                color=COLORS["coral"], linewidth=2.5))
     ax.text(1.5, 88, "90-bit\nreduction!", fontsize=14,
-            fontweight="normal", color=COLORS["red"], ha="center",
+            fontweight="normal", color=COLORS["coral"], ha="center",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                      edgecolor=COLORS["red"], alpha=0.9))
+                      edgecolor=COLORS["coral"], alpha=0.9))
 
     style_ax(ax, "PRINCE-64 Cipher: Security Under Different Attacks",
              "", "Effective Security (bits)")
@@ -415,17 +415,17 @@ def fig_attack_overview():
     ax.set_ylim(0, 6)
     ax.axis("off")
 
-    box_style = dict(boxstyle="round,pad=0.5", facecolor="#E0E7FF",
-                     edgecolor=COLORS["blue"], linewidth=2)
-    target_style = dict(boxstyle="round,pad=0.5", facecolor="#FEE2E2",
-                        edgecolor=COLORS["red"], linewidth=2)
-    result_style = dict(boxstyle="round,pad=0.4", facecolor="#DCFCE7",
-                        edgecolor=COLORS["green"], linewidth=2)
+    box_style = dict(boxstyle="round,pad=0.5", facecolor=COLORS["mint"],
+                     edgecolor=COLORS["navy"], linewidth=2)
+    target_style = dict(boxstyle="round,pad=0.5", facecolor="#FDE8E9",
+                        edgecolor=COLORS["coral"], linewidth=2)
+    result_style = dict(boxstyle="round,pad=0.4", facecolor=COLORS["mint"],
+                        edgecolor=COLORS["teal"], linewidth=2)
 
     ax.text(5, 5.5, "Simon's Algorithm", fontsize=18, ha="center",
             fontweight="normal", color=COLORS["dark"],
-            bbox=dict(boxstyle="round,pad=0.6", facecolor="#DBEAFE",
-                      edgecolor=COLORS["blue"], linewidth=3))
+            bbox=dict(boxstyle="round,pad=0.6", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=3))
 
     targets = [
         (1.5, 3.5, "Even-Mansour\nE(x) = P(x⊕k₁)⊕k₂"),
@@ -437,7 +437,7 @@ def fig_attack_overview():
                 bbox=target_style)
         ax.annotate("", xy=(x, 4.0), xytext=(5, 5.05),
                     arrowprops=dict(arrowstyle="->,head_width=0.3",
-                                    color=COLORS["dark"], linewidth=1.5))
+                                    color=COLORS["navy"], linewidth=1.5))
 
     reductions = [
         (1.5, 1.8, "f(x) = E(x)⊕P(x)\nperiod s = k₁"),
@@ -447,14 +447,14 @@ def fig_attack_overview():
     for (tx, ty, _), (rx, ry, rtext) in zip(targets, reductions):
         ax.annotate("", xy=(rx, ry + 0.55), xytext=(tx, ty - 0.55),
                     arrowprops=dict(arrowstyle="->,head_width=0.2",
-                                    color=COLORS["green"], linewidth=1.5))
+                                    color=COLORS["teal"], linewidth=1.5))
         ax.text(rx, ry, rtext, fontsize=9, ha="center", va="center",
                 bbox=result_style, family="monospace")
 
     ax.text(5, 0.5, "All recover the secret key in O(n) quantum queries",
-            fontsize=14, ha="center", fontweight="normal", color=COLORS["blue"],
+            fontsize=14, ha="center", fontweight="normal", color=COLORS["navy"],
             bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
-                      edgecolor=COLORS["blue"], linewidth=2, alpha=0.9))
+                      edgecolor=COLORS["navy"], linewidth=2, alpha=0.9))
 
     fig.tight_layout()
     fig.savefig(OUT / "10_attack_overview.png", dpi=300, bbox_inches="tight")
