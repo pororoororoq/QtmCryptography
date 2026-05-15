@@ -462,6 +462,589 @@ def fig_attack_overview():
     print("  [10] Attack overview diagram")
 
 
+# ── Figure 11: Simon's Algorithm Quantum Circuit ───────────────────
+def fig_simons_circuit():
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_xlim(-0.5, 11)
+    ax.set_ylim(-0.5, 7.5)
+    ax.axis("off")
+    ax.set_aspect("equal")
+
+    n = 3
+    wire_y_input = [6, 5, 4]
+    wire_y_output = [2, 1, 0]
+    all_wires = wire_y_input + wire_y_output
+    x_start, x_end = 0.5, 10
+
+    for y in all_wires:
+        ax.plot([x_start, x_end], [y, y], color=COLORS["dark"], linewidth=1, zorder=1)
+
+    for i, y in enumerate(wire_y_input):
+        ax.text(0, y, f"|0⟩", fontsize=13, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+    for i, y in enumerate(wire_y_output):
+        ax.text(0, y, f"|0⟩", fontsize=13, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+
+    ax.text(-0.3, 6.8, "input", fontsize=9, ha="right", va="center",
+            color=COLORS["sage"], style="italic")
+    ax.text(-0.3, 2.8, "output", fontsize=9, ha="right", va="center",
+            color=COLORS["sage"], style="italic")
+
+    h_x = 1.5
+    h_size = 0.35
+    for y in wire_y_input:
+        rect = plt.Rectangle((h_x - h_size, y - h_size), 2*h_size, 2*h_size,
+                              facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                              linewidth=1.5, zorder=3)
+        ax.add_patch(rect)
+        ax.text(h_x, y, "H", fontsize=13, ha="center", va="center",
+                color=COLORS["navy"], family="serif")
+
+    oracle_x1, oracle_x2 = 3.5, 5.5
+    oracle_rect = plt.Rectangle((oracle_x1, -0.4), oracle_x2 - oracle_x1, 6.8,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 linewidth=2, zorder=2, alpha=0.9)
+    ax.add_patch(oracle_rect)
+    ax.text((oracle_x1 + oracle_x2)/2, 3, "Oracle\nUf", fontsize=15,
+            ha="center", va="center", color=COLORS["coral"], family="serif")
+    ax.text((oracle_x1 + oracle_x2)/2, 3.0 + 1.5,
+            "|x⟩|y⟩ → |x⟩|y⊕f(x)⟩", fontsize=9,
+            ha="center", va="center", color=COLORS["dark"], family="serif")
+
+    h2_x = 7.0
+    for y in wire_y_input:
+        rect = plt.Rectangle((h2_x - h_size, y - h_size), 2*h_size, 2*h_size,
+                              facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                              linewidth=1.5, zorder=3)
+        ax.add_patch(rect)
+        ax.text(h2_x, y, "H", fontsize=13, ha="center", va="center",
+                color=COLORS["navy"], family="serif")
+
+    meter_x = 8.8
+    for y in wire_y_input:
+        arc = plt.Circle((meter_x, y - 0.1), 0.3, fill=False,
+                          edgecolor=COLORS["navy"], linewidth=1.5, zorder=3)
+        ax.add_patch(arc)
+        ax.plot([meter_x, meter_x + 0.15], [y - 0.1, y + 0.25],
+                color=COLORS["navy"], linewidth=1.5, zorder=4)
+        ax.plot([meter_x - 0.3, meter_x + 0.3], [y - 0.4, y - 0.4],
+                color=COLORS["navy"], linewidth=1.5, zorder=4)
+
+    ax.text(10.3, 5, "y", fontsize=14, ha="center", va="center",
+            color=COLORS["navy"], family="serif")
+    ax.text(10.3, 4.3, "(y·s = 0)", fontsize=10, ha="center", va="center",
+            color=COLORS["sage"], family="serif")
+
+    ax.annotate("", xy=(3.2, 3), xytext=(2.0, 3),
+                arrowprops=dict(arrowstyle="->,head_width=0.15",
+                                color=COLORS["sage"], linewidth=1))
+    ax.text(2.6, 3.4, "superposition\nof all x", fontsize=8, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    ax.text(5.5, 7.2, "Simon's Algorithm Quantum Circuit (n = 3)",
+            fontsize=16, ha="center", va="center", color=COLORS["dark"])
+
+    fig.tight_layout()
+    fig.savefig(OUT / "11_simons_circuit.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [11] Simon's circuit diagram")
+
+
+# ── Figure 12: Simon's Algorithm Worked Example ───────────────────
+def fig_simons_worked_example():
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5.5),
+                              gridspec_kw={"width_ratios": [1, 1, 1]})
+
+    ax1, ax2, ax3 = axes
+    for ax in axes:
+        ax.axis("off")
+
+    # Panel 1: The hidden function truth table
+    ax1.set_xlim(0, 4)
+    ax1.set_ylim(-0.5, 9)
+    ax1.text(2, 8.5, "Step 1: Hidden Function", fontsize=13,
+             ha="center", color=COLORS["dark"])
+    ax1.text(2, 7.8, "Secret s = 101 (unknown)", fontsize=10,
+             ha="center", color=COLORS["coral"])
+
+    table_data = [
+        ("x", "f(x)"),
+        ("000", "010"),
+        ("001", "110"),
+        ("010", "000"),
+        ("011", "100"),
+        ("100", "010"),
+        ("101", "110"),
+        ("110", "000"),
+        ("111", "100"),
+    ]
+    for i, (x_val, fx_val) in enumerate(table_data):
+        y = 7.0 - i * 0.75
+        if i == 0:
+            ax1.text(1.2, y, x_val, fontsize=11, ha="center", va="center",
+                     color=COLORS["dark"], family="monospace")
+            ax1.text(2.8, y, fx_val, fontsize=11, ha="center", va="center",
+                     color=COLORS["dark"], family="monospace")
+            ax1.plot([0.5, 3.5], [y - 0.35, y - 0.35], color=COLORS["dark"],
+                     linewidth=1)
+        else:
+            highlight = (i - 1) < 4
+            bg = COLORS["mint"] if highlight else "#FDE8E9"
+            rect = plt.Rectangle((0.5, y - 0.3), 3, 0.6, facecolor=bg,
+                                  edgecolor="none", alpha=0.5, zorder=0)
+            ax1.add_patch(rect)
+            ax1.text(1.2, y, x_val, fontsize=11, ha="center", va="center",
+                     color=COLORS["navy"], family="monospace")
+            ax1.text(2.8, y, fx_val, fontsize=11, ha="center", va="center",
+                     color=COLORS["navy"], family="monospace")
+
+    # Draw matching pairs
+    pairs = [(1, 5), (2, 6), (3, 7), (4, 8)]
+    for a, b in pairs:
+        ya = 7.0 - a * 0.75
+        yb = 7.0 - b * 0.75
+        ax1.annotate("", xy=(3.7, yb), xytext=(3.7, ya),
+                     arrowprops=dict(arrowstyle="<->", color=COLORS["coral"],
+                                     linewidth=1, connectionstyle="arc3,rad=0.3"))
+
+    ax1.text(4.0, 3.5, "f(x)=f(x⊕101)", fontsize=8, color=COLORS["coral"],
+             rotation=90, va="center")
+
+    # Panel 2: Quantum measurements → equations
+    ax2.set_xlim(0, 5)
+    ax2.set_ylim(-0.5, 9)
+    ax2.text(2.5, 8.5, "Step 2: Measure", fontsize=13,
+             ha="center", color=COLORS["dark"])
+    ax2.text(2.5, 7.8, "Each y satisfies y · s = 0 mod 2", fontsize=10,
+             ha="center", color=COLORS["sage"])
+
+    measurements = [
+        ("y₁ = 010", "0·s₁ + 1·s₂ + 0·s₃ = 0"),
+        ("y₂ = 110", "1·s₁ + 1·s₂ + 0·s₃ = 0"),
+        ("y₃ = 101", "1·s₁ + 0·s₂ + 1·s₃ = 0"),
+    ]
+    for i, (meas, eq) in enumerate(measurements):
+        y = 6.5 - i * 2.0
+        rect = plt.Rectangle((0.3, y - 0.5), 4.4, 1.6, facecolor=COLORS["mint"],
+                              edgecolor=COLORS["teal"], linewidth=1.5,
+                              alpha=0.6, zorder=0)
+        ax2.add_patch(rect)
+        ax2.text(2.5, y + 0.3, meas, fontsize=12, ha="center", va="center",
+                 color=COLORS["navy"], family="monospace")
+        ax2.text(2.5, y - 0.2, eq, fontsize=10, ha="center", va="center",
+                 color=COLORS["dark"], family="monospace")
+
+    ax2.annotate("", xy=(2.5, 1.3), xytext=(2.5, 2.2),
+                 arrowprops=dict(arrowstyle="->,head_width=0.2",
+                                 color=COLORS["navy"], linewidth=2))
+    ax2.text(2.5, 0.7, "n−1 = 2 independent\nequations needed", fontsize=10,
+             ha="center", color=COLORS["navy"])
+
+    # Panel 3: GF(2) solution
+    ax3.set_xlim(0, 5)
+    ax3.set_ylim(-0.5, 9)
+    ax3.text(2.5, 8.5, "Step 3: Solve over GF(2)", fontsize=13,
+             ha="center", color=COLORS["dark"])
+
+    # Matrix
+    ax3.text(2.5, 7.3, "Gaussian Elimination mod 2:", fontsize=10,
+             ha="center", color=COLORS["sage"])
+
+    matrix_lines = [
+        "⎡ 0 1 0 | 0 ⎤",
+        "⎢ 1 1 0 | 0 ⎥",
+        "⎣ 1 0 1 | 0 ⎦",
+    ]
+    for i, line in enumerate(matrix_lines):
+        ax3.text(2.5, 6.4 - i * 0.55, line, fontsize=11, ha="center",
+                 va="center", color=COLORS["navy"], family="monospace")
+
+    ax3.annotate("", xy=(2.5, 4.6), xytext=(2.5, 5.0),
+                 arrowprops=dict(arrowstyle="->,head_width=0.15",
+                                 color=COLORS["navy"], linewidth=1.5))
+
+    matrix_reduced = [
+        "⎡ 1 0 1 | 0 ⎤",
+        "⎢ 0 1 0 | 0 ⎥",
+        "⎣ 0 0 0 | 0 ⎦",
+    ]
+    for i, line in enumerate(matrix_reduced):
+        ax3.text(2.5, 4.2 - i * 0.55, line, fontsize=11, ha="center",
+                 va="center", color=COLORS["navy"], family="monospace")
+
+    ax3.text(2.5, 2.6, "Free variable: s₃ = 1", fontsize=10,
+             ha="center", color=COLORS["dark"])
+    ax3.text(2.5, 2.1, "Back-substitute: s₁ = 1, s₂ = 0", fontsize=10,
+             ha="center", color=COLORS["dark"])
+
+    result_rect = plt.Rectangle((0.6, 0.8), 3.8, 1.0,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 linewidth=2, zorder=2)
+    ax3.add_patch(result_rect)
+    ax3.text(2.5, 1.3, "s = 101  ✓  Key recovered!", fontsize=13,
+             ha="center", va="center", color=COLORS["coral"],
+             family="monospace")
+
+    fig.suptitle("Simon's Algorithm: Complete Worked Example (n = 3)",
+                 fontsize=16, y=1.02, color=COLORS["dark"])
+    fig.tight_layout()
+    fig.savefig(OUT / "12_simons_worked_example.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [12] Simon's worked example")
+
+
+# ── Figure 13: Even-Mansour Attack Diagram ─────────────────────────
+def fig_even_mansour_worked():
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7),
+                                     gridspec_kw={"height_ratios": [1, 1.2]})
+
+    # Top panel: cipher structure
+    ax1.set_xlim(0, 10)
+    ax1.set_ylim(0, 4)
+    ax1.axis("off")
+    ax1.set_title("Even-Mansour Cipher Structure", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    # Input
+    ax1.text(0.5, 2, "x", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"], family="serif",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
+                       edgecolor=COLORS["navy"], linewidth=1.5))
+
+    # XOR with k1
+    ax1.annotate("", xy=(1.8, 2), xytext=(1.0, 2),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
+    circle1 = plt.Circle((2.2, 2), 0.3, fill=False, edgecolor=COLORS["navy"],
+                          linewidth=2, zorder=3)
+    ax1.add_patch(circle1)
+    ax1.text(2.2, 2, "⊕", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"])
+    ax1.annotate("", xy=(2.2, 2.7), xytext=(2.2, 3.3),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["coral"], linewidth=1.5))
+    ax1.text(2.2, 3.6, "k₁", fontsize=14, ha="center", va="center",
+             color=COLORS["coral"],
+             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
+                       edgecolor=COLORS["coral"], linewidth=1.5))
+
+    # Permutation P
+    ax1.annotate("", xy=(3.5, 2), xytext=(2.6, 2),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
+    perm_rect = plt.Rectangle((3.5, 1.3), 1.8, 1.4, facecolor=COLORS["mint"],
+                               edgecolor=COLORS["teal"], linewidth=2, zorder=2)
+    ax1.add_patch(perm_rect)
+    ax1.text(4.4, 2, "P", fontsize=18, ha="center", va="center",
+             color=COLORS["navy"], family="serif")
+    ax1.text(4.4, 1.0, "(public permutation)", fontsize=8, ha="center",
+             color=COLORS["sage"])
+
+    # XOR with k2
+    ax1.annotate("", xy=(6.0, 2), xytext=(5.4, 2),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
+    circle2 = plt.Circle((6.4, 2), 0.3, fill=False, edgecolor=COLORS["navy"],
+                          linewidth=2, zorder=3)
+    ax1.add_patch(circle2)
+    ax1.text(6.4, 2, "⊕", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"])
+    ax1.annotate("", xy=(6.4, 2.7), xytext=(6.4, 3.3),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["coral"], linewidth=1.5))
+    ax1.text(6.4, 3.6, "k₂", fontsize=14, ha="center", va="center",
+             color=COLORS["coral"],
+             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
+                       edgecolor=COLORS["coral"], linewidth=1.5))
+
+    # Output
+    ax1.annotate("", xy=(7.5, 2), xytext=(6.8, 2),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
+    ax1.text(8.0, 2, "E(x)", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"], family="serif",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
+                       edgecolor=COLORS["navy"], linewidth=1.5))
+
+    # Formula
+    ax1.text(5, 0.3, "E(x) = P(x ⊕ k₁) ⊕ k₂", fontsize=13,
+             ha="center", color=COLORS["dark"], family="serif",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                       edgecolor=COLORS["sage"], linewidth=1))
+
+    # Bottom panel: attack reduction
+    ax2.set_xlim(0, 10)
+    ax2.set_ylim(0, 5)
+    ax2.axis("off")
+    ax2.set_title("Simon's Attack Reduction", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    # The reduction
+    steps = [
+        (0.5, 4.0, "Define:", "f(x) = E(x) ⊕ P(x)"),
+        (0.5, 3.0, "Expand:", "f(x) = P(x⊕k₁)⊕k₂ ⊕ P(x)"),
+        (0.5, 2.0, "Key insight:", "f(x⊕k₁) = P(x)⊕k₂ ⊕ P(x⊕k₁) = f(x)"),
+    ]
+    for x, y, label, formula in steps:
+        ax2.text(x, y, label, fontsize=11, ha="left", va="center",
+                 color=COLORS["sage"])
+        ax2.text(x + 1.8, y, formula, fontsize=12, ha="left", va="center",
+                 color=COLORS["navy"], family="monospace")
+
+    ax2.annotate("", xy=(5, 2.0 - 0.5), xytext=(5, 2.0 - 0.2),
+                 arrowprops=dict(arrowstyle="->,head_width=0.15",
+                                 color=COLORS["navy"], linewidth=1.5))
+
+    result_rect = plt.Rectangle((1.5, 0.3), 7, 1.0,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 linewidth=2, zorder=2)
+    ax2.add_patch(result_rect)
+    ax2.text(5, 0.8, "f(x) has period s = k₁  →  Simon's algorithm recovers k₁ in O(n) queries",
+             fontsize=11, ha="center", va="center", color=COLORS["coral"])
+
+    fig.tight_layout()
+    fig.savefig(OUT / "13_even_mansour_attack.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [13] Even-Mansour attack diagram")
+
+
+# ── Figure 14: 3-Round Feistel Attack Diagram ──────────────────────
+def fig_feistel_worked():
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6),
+                                     gridspec_kw={"width_ratios": [1.1, 1]})
+
+    # Left panel: Feistel network structure
+    ax1.set_xlim(0, 8)
+    ax1.set_ylim(-0.5, 9)
+    ax1.axis("off")
+    ax1.set_title("3-Round Feistel Network", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    # Draw 3 rounds
+    for rnd in range(3):
+        y_top = 7.5 - rnd * 2.5
+        y_bot = y_top - 1.8
+
+        # L and R wires
+        ax1.plot([1.5, 1.5], [y_top, y_bot], color=COLORS["dark"], linewidth=1.5)
+        ax1.plot([5.5, 5.5], [y_top, y_bot + 0.8], color=COLORS["dark"], linewidth=1.5)
+        ax1.plot([5.5, 5.5], [y_bot + 0.4, y_bot], color=COLORS["dark"], linewidth=1.5)
+
+        # Cross-over (swap)
+        ax1.plot([1.5, 5.5], [y_bot, y_bot - 0.15], color=COLORS["dark"],
+                 linewidth=1, linestyle="--", alpha=0.4)
+        ax1.plot([5.5, 1.5], [y_bot, y_bot - 0.15], color=COLORS["dark"],
+                 linewidth=1, linestyle="--", alpha=0.4)
+
+        # F box (round function)
+        f_rect = plt.Rectangle((3.8, y_top - 1.4), 1.2, 0.8,
+                                facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                linewidth=1.5, zorder=3)
+        ax1.add_patch(f_rect)
+        ax1.text(4.4, y_top - 1.0, f"F", fontsize=13, ha="center", va="center",
+                 color=COLORS["coral"], family="serif")
+
+        # Arrow from R into F
+        ax1.annotate("", xy=(3.8, y_top - 1.0), xytext=(5.5, y_top - 1.0),
+                     arrowprops=dict(arrowstyle="<-", color=COLORS["dark"],
+                                     linewidth=1))
+
+        # Arrow from F to XOR
+        ax1.annotate("", xy=(2.0, y_top - 1.0), xytext=(3.8, y_top - 1.0),
+                     arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
+                                     linewidth=1))
+
+        # XOR circle on L wire
+        circle = plt.Circle((1.5, y_top - 1.0), 0.2, fill=False,
+                             edgecolor=COLORS["navy"], linewidth=1.5, zorder=3)
+        ax1.add_patch(circle)
+        ax1.text(1.5, y_top - 1.0, "⊕", fontsize=11, ha="center", va="center",
+                 color=COLORS["navy"])
+
+        # Round label
+        ax1.text(6.8, y_top - 0.9, f"Round {rnd+1}", fontsize=10,
+                 color=COLORS["sage"])
+
+    # Labels
+    ax1.text(1.5, 8.0, "L", fontsize=14, ha="center", color=COLORS["navy"])
+    ax1.text(5.5, 8.0, "R", fontsize=14, ha="center", color=COLORS["navy"])
+    ax1.text(1.5, -0.3, "L'", fontsize=14, ha="center", color=COLORS["navy"])
+    ax1.text(5.5, -0.3, "R'", fontsize=14, ha="center", color=COLORS["navy"])
+    ax1.text(4.0, 8.3, "F(x) = S[x ⊕ k]", fontsize=11, ha="center",
+             color=COLORS["coral"], family="monospace")
+
+    # Right panel: attack reduction
+    ax2.set_xlim(0, 6)
+    ax2.set_ylim(0, 9)
+    ax2.axis("off")
+    ax2.set_title("Simon's Attack on Feistel", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    steps = [
+        (0.3, 8.0, "Construct function:"),
+        (0.3, 7.2, "f(x) = E_L(x, 0) ⊕ E_L(x, 1)"),
+        (0.3, 6.2, "Encrypt (x, 0) and (x, 1),"),
+        (0.3, 5.7, "XOR the left halves"),
+        (0.3, 4.7, "After 3-round analysis:"),
+        (0.3, 3.9, "f(x) = S[x ⊕ a] ⊕ S[x ⊕ b]"),
+        (0.3, 3.2, "where a = S[k]⊕k, b = S[1⊕k]⊕k"),
+    ]
+
+    for x, y, text in steps:
+        if "Construct" in text or "Encrypt" in text or "After" in text:
+            ax2.text(x, y, text, fontsize=11, color=COLORS["sage"])
+        elif "f(x) = E_L" in text or "f(x) = S[" in text:
+            ax2.text(x, y, text, fontsize=12, color=COLORS["navy"],
+                     family="monospace")
+        elif "where" in text:
+            ax2.text(x, y, text, fontsize=10, color=COLORS["dark"],
+                     family="monospace")
+        else:
+            ax2.text(x, y, text, fontsize=10, color=COLORS["dark"])
+
+    ax2.annotate("", xy=(3, 2.5), xytext=(3, 2.9),
+                 arrowprops=dict(arrowstyle="->,head_width=0.15",
+                                 color=COLORS["navy"], linewidth=1.5))
+
+    ax2.text(3, 2.1, "Period: s = a ⊕ b = S[k] ⊕ S[1⊕k]",
+             fontsize=11, ha="center", color=COLORS["navy"], family="monospace")
+
+    result_rect = plt.Rectangle((0.3, 0.5), 5.4, 1.2,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 linewidth=2, zorder=2)
+    ax2.add_patch(result_rect)
+    ax2.text(3, 1.1, "Simon recovers s, then brute-force\nk from S[k] ⊕ S[1⊕k] = s",
+             fontsize=11, ha="center", va="center", color=COLORS["coral"])
+
+    fig.suptitle("3-Round Feistel: Structure and Quantum Attack",
+                 fontsize=16, y=1.02, color=COLORS["dark"])
+    fig.tight_layout()
+    fig.savefig(OUT / "14_feistel_attack.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [14] Feistel attack diagram")
+
+
+# ── Figure 15: Slide Attack Diagram ────────────────────────────────
+def fig_slide_worked():
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5),
+                                     gridspec_kw={"width_ratios": [1.2, 1]})
+
+    # Left panel: iterated cipher rounds
+    ax1.set_xlim(0, 10)
+    ax1.set_ylim(0, 7)
+    ax1.axis("off")
+    ax1.set_title("Iterated Cipher: r Identical Rounds", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    # Draw chain of rounds
+    x_positions = [1, 3, 5, 7.5]
+    labels = ["Fk", "Fk", "Fk", "Fk"]
+    round_labels = ["Round 1", "Round 2", "Round 3", "Round r"]
+
+    ax1.text(0.2, 4, "x", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"], family="serif",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
+                       edgecolor=COLORS["navy"], linewidth=1.5))
+
+    for i, (xp, lab, rlab) in enumerate(zip(x_positions, labels, round_labels)):
+        if i == 2:
+            ax1.text(xp + 0.5, 4, "···", fontsize=20, ha="center", va="center",
+                     color=COLORS["sage"])
+            continue
+
+        rect = plt.Rectangle((xp, 3.2), 1.5, 1.6,
+                               facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                               linewidth=1.5, zorder=2)
+        ax1.add_patch(rect)
+        ax1.text(xp + 0.75, 4, lab, fontsize=14, ha="center", va="center",
+                 color=COLORS["navy"], family="serif")
+        ax1.text(xp + 0.75, 3.0, rlab, fontsize=9, ha="center",
+                 color=COLORS["sage"])
+
+        # Key input
+        ax1.annotate("", xy=(xp + 0.75, 4.8), xytext=(xp + 0.75, 5.5),
+                     arrowprops=dict(arrowstyle="->", color=COLORS["coral"],
+                                     linewidth=1))
+        if i == 0:
+            ax1.text(xp + 0.75, 5.8, "k", fontsize=13, ha="center",
+                     color=COLORS["coral"],
+                     bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
+                               edgecolor=COLORS["coral"], linewidth=1))
+
+        # Arrows between rounds
+        if i == 0:
+            ax1.annotate("", xy=(xp, 4), xytext=(0.6, 4),
+                         arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
+                                         linewidth=1.5))
+        if i < 3:
+            ax1.annotate("", xy=(xp + 2.0 if i < 2 else xp + 2.5, 4),
+                         xytext=(xp + 1.5, 4),
+                         arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
+                                         linewidth=1.5))
+
+    # Same key for all rounds annotation
+    ax1.text(5, 6.3, "Same key k used in every round", fontsize=11,
+             ha="center", color=COLORS["coral"],
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="#FDE8E9",
+                       edgecolor=COLORS["coral"], linewidth=1, alpha=0.8))
+
+    ax1.text(9.5, 4, "E(x)", fontsize=16, ha="center", va="center",
+             color=COLORS["navy"], family="serif",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
+                       edgecolor=COLORS["navy"], linewidth=1.5))
+    ax1.annotate("", xy=(9.0, 4), xytext=(8.5 + 0.5, 4),
+                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
+                                 linewidth=1.5))
+
+    # Bottom: key insight
+    insight_rect = plt.Rectangle((0.5, 0.8), 9, 1.5,
+                                  facecolor=COLORS["mint"], edgecolor=COLORS["teal"],
+                                  linewidth=1.5, alpha=0.7, zorder=0)
+    ax1.add_patch(insight_rect)
+    ax1.text(5, 1.8, "Fk(x) = P(x ⊕ k)  where P is a public permutation",
+             fontsize=11, ha="center", color=COLORS["navy"], family="monospace")
+    ax1.text(5, 1.15, "Attack uses only ONE round — ignores all others!",
+             fontsize=11, ha="center", color=COLORS["coral"])
+
+    # Right panel: attack
+    ax2.set_xlim(0, 6)
+    ax2.set_ylim(0, 7)
+    ax2.axis("off")
+    ax2.set_title("Quantum Slide Attack", fontsize=14,
+                   color=COLORS["dark"], pad=10)
+
+    steps = [
+        (0.3, 6.2, "Construct:", "f(x) = Fk(x) ⊕ P(x)"),
+        (0.3, 5.2, "Expand:", "f(x) = P(x⊕k) ⊕ P(x)"),
+        (0.3, 4.2, "Verify:", "f(x⊕k) = P(x) ⊕ P(x⊕k)"),
+        (0.3, 3.5, "", "         = f(x)  ✓"),
+    ]
+    for x, y, label, formula in steps:
+        if label:
+            ax2.text(x, y, label, fontsize=11, color=COLORS["sage"])
+        ax2.text(x + (1.8 if label else 0), y, formula, fontsize=12,
+                 color=COLORS["navy"], family="monospace")
+
+    ax2.annotate("", xy=(3, 2.5), xytext=(3, 3.0),
+                 arrowprops=dict(arrowstyle="->,head_width=0.15",
+                                 color=COLORS["navy"], linewidth=1.5))
+
+    result_rect = plt.Rectangle((0.3, 1.2), 5.4, 1.1,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 linewidth=2, zorder=2)
+    ax2.add_patch(result_rect)
+    ax2.text(3, 1.75, "Period s = k  →  direct key recovery!",
+             fontsize=12, ha="center", va="center", color=COLORS["coral"])
+
+    # Complexity comparison
+    ax2.text(3, 0.5, "O(n) queries regardless of round count r",
+             fontsize=10, ha="center", color=COLORS["navy"],
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                       edgecolor=COLORS["navy"], linewidth=1, alpha=0.8))
+
+    fig.suptitle("Quantum Slide Attack: Round Count is Irrelevant",
+                 fontsize=16, y=1.02, color=COLORS["dark"])
+    fig.tight_layout()
+    fig.savefig(OUT / "15_slide_attack.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [15] Slide attack diagram")
+
+
 # ── Main ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("Generating poster figures...")
@@ -476,12 +1059,18 @@ if __name__ == "__main__":
     fig_resource_estimates()
     fig_prince_security()
     fig_attack_overview()
+    fig_simons_circuit()
+    fig_simons_worked_example()
+    fig_even_mansour_worked()
+    fig_feistel_worked()
+    fig_slide_worked()
     print()
     print(f"Done! {len(list(OUT.glob('*.png')))} figures saved to {OUT}/")
     print()
     print("Recommended poster layout:")
     print("  INTRODUCTION:  Fig 10 (attack overview), Fig 7 (Simon vs Grover)")
-    print("  METHODOLOGY:   Fig 10 (attack overview)")
+    print("  METHODOLOGY:   Fig 11 (circuit), Fig 12 (worked example),")
+    print("                 Fig 13 (Even-Mansour), Fig 14 (Feistel), Fig 15 (Slide)")
     print("  RESULTS:       Fig 6 (success rates), Fig 1 (noise cliff),")
     print("                 Fig 2 (slide independence), Fig 5 (convergence)")
     print("  CONCLUSION:    Fig 9 (PRINCE security), Fig 8 (resource estimates)")
