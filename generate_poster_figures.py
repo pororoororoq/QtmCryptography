@@ -30,7 +30,7 @@ COLORS = {
 }
 
 def style_ax(ax, title, xlabel, ylabel):
-    ax.set_title(title, fontsize=16, fontweight="bold", pad=12)
+    ax.set_title(title, fontsize=16, pad=12)
     ax.set_xlabel(xlabel, fontsize=13)
     ax.set_ylabel(ylabel, fontsize=13)
     ax.tick_params(labelsize=11)
@@ -56,7 +56,7 @@ def fig_noise_phase_transition():
 
     ax.axvspan(30, 42, alpha=0.12, color=COLORS["red"], zorder=0)
     ax.annotate("Phase\ntransition", xy=(36, 72), fontsize=11,
-                color=COLORS["red"], ha="center", fontweight="bold")
+                color=COLORS["red"], ha="center", fontweight="normal")
 
     ax.axhline(y=50, color=COLORS["gray"], linestyle=":", linewidth=1, alpha=0.5)
     ax.text(2, 52, "Random guessing", fontsize=9, color=COLORS["gray"])
@@ -108,7 +108,7 @@ def fig_slide_round_independence():
                  xy=(50, 60), xytext=(10, 30),
                  fontsize=10, color=COLORS["blue"],
                  arrowprops=dict(arrowstyle="->", color=COLORS["blue"]),
-                 fontweight="bold")
+                 fontweight="normal")
 
     style_ax(ax2, "Attack Time vs Round Count",
              "Number of Cipher Rounds", "Execution Time (seconds)")
@@ -118,7 +118,7 @@ def fig_slide_round_independence():
     ax2.legend(fontsize=11)
 
     fig.suptitle("Quantum Slide Attack: Round Count is Irrelevant",
-                 fontsize=17, fontweight="bold", y=1.03)
+                 fontsize=17, fontweight="normal", y=1.03)
     fig.tight_layout()
     fig.savefig(OUT / "2_slide_round_independence.png", dpi=300,
                 bbox_inches="tight")
@@ -151,7 +151,7 @@ def fig_query_complexity():
 
     for i, (m, n) in enumerate(zip(means, n_vals)):
         ax.text(i - width/2, m + stds[i] + 0.3, f"{m/n:.2f}n",
-                ha="center", fontsize=9, fontweight="bold", color=COLORS["dark"])
+                ha="center", fontsize=9, fontweight="normal", color=COLORS["dark"])
 
     ax.set_xticks(x)
     ax.set_xticklabels([f"n={n}" for n in n_vals])
@@ -285,7 +285,7 @@ def fig_success_rates():
                         color=COLORS["gray"], rotation=90)
             elif v < 100:
                 ax.text(x[j] + offset, v + 2, f"{v:.0f}%", ha="center",
-                        fontsize=9, fontweight="bold")
+                        fontsize=9, fontweight="normal")
 
     ax.set_xticks(x)
     ax.set_xticklabels([f"n = {n} bits" for n in ns], fontsize=12)
@@ -321,7 +321,7 @@ def fig_simon_vs_grover():
     ax.fill_between(n_vals, simon_queries, grover_queries,
                     alpha=0.1, color=COLORS["blue"])
     ax.annotate("Exponential\ngap!",
-                xy=(64, 1e5), fontsize=13, fontweight="bold",
+                xy=(64, 1e5), fontsize=13, fontweight="normal",
                 color=COLORS["blue"], ha="center")
 
     style_ax(ax, "Simon's Algorithm vs Classical & Grover",
@@ -351,7 +351,7 @@ def fig_resource_estimates():
     for bar, q in zip(bars1, physical_qubits):
         label = f"~{q/1e6:.1f}M" if q >= 1e6 else f"~{q/1e3:.0f}K"
         ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
-                 label, ha="center", fontsize=11, fontweight="bold")
+                 label, ha="center", fontsize=11, fontweight="normal")
 
     style_ax(ax1, "Physical Qubits Required",
              "", "Millions of Physical Qubits")
@@ -361,13 +361,13 @@ def fig_resource_estimates():
                     alpha=0.85, edgecolor="white", linewidth=0.5, zorder=3)
     for bar, t in zip(bars2, t_gates):
         ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 10,
-                 f"{t/1e6:.0f}M", ha="center", fontsize=11, fontweight="bold")
+                 f"{t/1e6:.0f}M", ha="center", fontsize=11, fontweight="normal")
 
     style_ax(ax2, "T-Gate Count",
              "", "Millions of T-Gates")
 
     fig.suptitle("Fault-Tolerant Resources for Real-World Cipher Attacks",
-                 fontsize=16, fontweight="bold", y=1.03)
+                 fontsize=16, fontweight="normal", y=1.03)
     fig.tight_layout()
     fig.savefig(OUT / "8_resource_estimates.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
@@ -388,13 +388,13 @@ def fig_prince_security():
 
     for bar, b in zip(bars, bits):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2,
-                f"{b} bits", ha="center", fontsize=13, fontweight="bold")
+                f"{b} bits", ha="center", fontsize=13, fontweight="normal")
 
     ax.annotate("", xy=(3, 40), xytext=(0, 127),
                 arrowprops=dict(arrowstyle="->,head_width=0.4",
                                 color=COLORS["red"], linewidth=2.5))
     ax.text(1.5, 88, "90-bit\nreduction!", fontsize=14,
-            fontweight="bold", color=COLORS["red"], ha="center",
+            fontweight="normal", color=COLORS["red"], ha="center",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                       edgecolor=COLORS["red"], alpha=0.9))
 
@@ -423,7 +423,7 @@ def fig_attack_overview():
                         edgecolor=COLORS["green"], linewidth=2)
 
     ax.text(5, 5.5, "Simon's Algorithm", fontsize=18, ha="center",
-            fontweight="bold", color=COLORS["dark"],
+            fontweight="normal", color=COLORS["dark"],
             bbox=dict(boxstyle="round,pad=0.6", facecolor="#DBEAFE",
                       edgecolor=COLORS["blue"], linewidth=3))
 
@@ -452,7 +452,7 @@ def fig_attack_overview():
                 bbox=result_style, family="monospace")
 
     ax.text(5, 0.5, "All recover the secret key in O(n) quantum queries",
-            fontsize=14, ha="center", fontweight="bold", color=COLORS["blue"],
+            fontsize=14, ha="center", fontweight="normal", color=COLORS["blue"],
             bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
                       edgecolor=COLORS["blue"], linewidth=2, alpha=0.9))
 
