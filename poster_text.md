@@ -4,138 +4,144 @@
 
 ## INTRODUCTION
 
-Every time you send a text, log into your bank, or tap your credit card, your data is scrambled by an encryption algorithm — a digital lock that turns your message into gibberish that only the right key can unscramble. The security of these locks rests on one assumption: that finding the key is so hard, no computer could do it in a reasonable amount of time.
-
-Quantum computers break that assumption.
+Encryption protects every text message, bank login, and credit card tap you make. It scrambles data with a secret key, and security depends on one thing: no computer can find that key fast enough to matter.
 
 **[Place Fig 7: Simon vs Grover]**
 
-- Most people know quantum computers threaten public-key crypto (the locks used for websites and email). The standard fix for symmetric crypto (the locks used for everything else) is "just use a longer key" — because the best known quantum attack (Grover's algorithm) only cuts security in half
-- But there is a much more powerful quantum algorithm that almost nobody talks about: **Simon's algorithm**. It doesn't just cut security in half — it **destroys it entirely** for certain cipher designs
-- The graph shows the difference: to crack a 128-bit key, a classical computer needs 10^38 attempts, Grover's needs 10^19, but Simon's needs only **128**. That's not a speedup — it's a collapse
+- Quantum computers threaten public-key crypto (Shor's algorithm), and the standard defense for symmetric crypto is longer keys. Grover's algorithm halves the security level, so doubling the key length should be enough
+- Simon's algorithm breaks that logic. A classical computer needs 10^38 attempts to crack a 128-bit key. Grover's needs 10^19. Simon's needs 128
+- We built Simon's algorithm from scratch, attacked three cipher designs used in textbooks and deployed systems, and ran 1,600+ experiments measuring speed and reliability
 
-**So what?** Three widely-studied cipher designs used in textbooks and real-world systems are all vulnerable. We built every attack from scratch, ran 1,600+ experiments, and measured exactly how fast and reliable they are.
+**[Place Fig 10: Attack Overview]**
+
+- Each cipher reduces to a function with a hidden repeating pattern. Simon's algorithm finds the pattern in O(n) quantum queries, where n is the key length. Classical methods need O(2^(n/2)) queries for the same task
 
 ---
 
-## HOW DOES SIMON'S ALGORITHM WORK?
+## HOW SIMON'S ALGORITHM WORKS
 
-Think of encryption like a combination lock. A classical computer has to try every combination one by one. Simon's algorithm exploits a hidden shortcut: if the encryption function has a **repeating pattern** (a "period"), the quantum computer can find that pattern — and the pattern reveals the key.
+A classical computer tries keys one by one. Simon's algorithm takes a different path: if the encryption function has a repeating pattern (a "period"), a quantum computer can extract that pattern and recover the key.
 
 **[Place Fig 11: Simon's Circuit]**
 
-- A quantum computer can test all possible inputs simultaneously using superposition (the quantum trick where a qubit is 0 and 1 at the same time)
-- The circuit puts all inputs into superposition, runs them through the encryption function, then interferes the results to extract information about the hidden pattern
-- Each run of the circuit produces one equation. After enough equations, you solve a simple system of equations to find the key
+- The circuit uses 2n qubits: n for input, n for output
+- Hadamard gates place all inputs into superposition. The oracle computes f(x) into the output register. A second layer of Hadamard gates interferes the results
+- Each measurement produces a vector y satisfying y · s = 0 (mod 2), where s is the secret key
+- After n-1 measurements, Gaussian elimination over GF(2) recovers s
 
 **[Place Fig 12: Worked Example]**
 
-- Here's a concrete example with a 3-bit key (s = 101). The function maps 8 inputs to 4 outputs — every input shares its output with exactly one partner (e.g., 000 and 101 both map to 010). The "distance" between partners is always 101 — that's the hidden period
-- Three measurements give three equations. Solving them (just like solving simultaneous equations in algebra, but with mod-2 arithmetic) reveals s = 101 — key recovered
+- With a 3-bit key (s = 101), the function maps 8 inputs to 4 outputs. Each input shares its output with one partner: 000 and 101 both map to 010, 001 and 100 both map to 110, and so on. The distance between partners is 101, the hidden period
+- Three measurements yield three equations. Gaussian elimination mod 2 solves the system: s = 101, key recovered
 
 ---
 
 ## THREE CIPHERS, THREE ATTACKS
 
-The power of Simon's algorithm is that many different cipher designs accidentally create these repeating patterns. We attacked three fundamentally different designs to show this isn't a fluke — it's a structural vulnerability.
+Many cipher designs create hidden periods by accident. We attacked three different designs to confirm the vulnerability is structural, not specific to one cipher.
 
-### Attack 1: Even-Mansour — The Simplest Real Cipher
+### Attack 1: Even-Mansour
 
 **[Place Fig 13: Even-Mansour Attack]**
 
-- **What it is:** The most basic "real" cipher — XOR a secret key, scramble with a public permutation, XOR another secret key. Despite its simplicity, it's the building block of many practical ciphers including PRINCE (used in IoT devices)
-- **The trick:** If you XOR the cipher's output with the public permutation's output, the result has a repeating pattern with period = the first secret key. One key reveals the other
-- **Why it matters:** This is the foundational attack. If even the simplest cipher falls, what about more complex ones?
+- **The cipher:** XOR a secret key k1, apply a public permutation P, XOR another secret key k2. Written as E(x) = P(x XOR k1) XOR k2. PRINCE, a cipher used in IoT devices and smart cards, uses this structure
+- **The reduction:** Define f(x) = E(x) XOR P(x). This function repeats with period k1. Simon's algorithm recovers k1, and k2 follows from one encryption query
+- **The lesson:** The simplest practical cipher falls in O(n) queries
 
-### Attack 2: Feistel Network — The Design Behind DES
+### Attack 2: 3-Round Feistel Network
 
 **[Place Fig 14: Feistel Attack]**
 
-- **What it is:** A Feistel network splits data in half and mixes the halves through multiple rounds — the same architecture used in DES (the former U.S. encryption standard) and many other ciphers
-- **The trick:** Encrypt two slightly different messages and compare the results. The difference has a repeating pattern that depends on the key. Simon's algorithm finds it
-- **Why it matters:** This shows the attack generalizes beyond simple ciphers to complex, multi-round designs that the cryptography community has studied for decades
+- **The cipher:** Splits data in half and mixes the halves through multiple rounds using a round function F(x) = S[x XOR k]. DES, the former U.S. encryption standard, uses this architecture
+- **The reduction:** Encrypt two inputs differing only in the right half, then XOR the left halves of the ciphertexts. The result repeats with a period derived from the key. Simon's algorithm extracts it, and a short brute-force search recovers k
+- **The lesson:** Multi-round, well-studied designs are vulnerable too
 
-### Attack 3: Slide Cipher — "Just Add More Rounds"
+### Attack 3: Quantum Slide Attack
 
 **[Place Fig 15: Slide Attack]**
 
-- **What it is:** A cipher that applies the same round function over and over — the intuition being that more rounds = more security. Many real ciphers rely on this principle
-- **The trick:** The attack only looks at ONE round. It completely ignores every other round, no matter how many there are
-- **Why it matters:** This is the most surprising result. The common defense of "make the cipher more complex by adding rounds" is **completely useless** against a quantum adversary. 1 round or 100 rounds — same attack, same speed, same success rate
+- **The cipher:** Applies the same round function Fk(x) = P(x XOR k) for r rounds. More rounds should mean more security
+- **The reduction:** Define f(x) = Fk(x) XOR P(x). This function repeats with period k. The attack uses one round and ignores every other round
+- **The lesson:** We tested 1 round through 100 rounds: identical success rate, identical speed. Adding rounds provides zero additional protection
 
 ---
 
 ## RESULTS
 
-### Does it actually work?
+### Does it work?
 
 **[Place Fig 6: Success Rates]**
 
-- All four attacks achieve **100% key recovery** for key sizes n >= 4, across 50 trials each — every single attempt successfully cracked the key
-- The slide attack dips to 40% at n=3 (too few qubits to reliably distinguish the pattern), but hits 100% at n=4+
+- All four attacks recover the key 100% of the time for key sizes n >= 4, across 50 trials each
+- The slide attack drops to 40% at n=3 (too few qubits to resolve the pattern) and reaches 100% at n=4
 
 ### How efficient is it?
 
 **[Place Fig 3: Query Complexity]**
 
-- The algorithm needs approximately **1.1n queries** to find an n-bit key — almost exactly the theoretical minimum of n-1
-- For context: a 128-bit key needs ~141 quantum measurements. A classical computer would need around 10^19 attempts
+- The measured query count averages 1.1n, close to the theoretical minimum of n-1
+- A 128-bit key needs about 141 quantum measurements. A classical computer needs 10^19 attempts
 
 **[Place Fig 5: Rank Convergence]**
 
-- This graph shows how quickly the algorithm "locks in" on the answer. After just n queries, over 99% of trials have already solved the key — the convergence is extremely sharp
+- After n queries, over 99% of trials have solved the key. The convergence follows a sharp S-curve
 
-### Does adding more rounds help? (No.)
+### Does adding more rounds help?
 
 **[Place Fig 2: Slide Round-Independence]**
 
-- We tested the slide attack on ciphers with 1, 2, 5, 10, 20, 50, and 100 rounds. The result: **perfectly flat lines** — identical success rate and identical speed regardless of round count
-- This directly disproves the "just add more rounds" defense. The quantum attack sidesteps all additional complexity
+- The slide attack produces flat lines from 1 to 100 rounds: same success rate, same execution time
+- "More rounds = more security" does not hold against a quantum adversary with access to the round function
 
-### What about noise and errors?
+### How does noise affect it?
 
 **[Place Fig 1: Noise Phase Transition]**
 
-- Real quantum computers make mistakes. We tested what happens when up to 40% of measurements are corrupted by noise
-- The algorithm is remarkably resilient: **near-perfect success up to ~30% noise**. Then it hits a cliff — a sharp phase transition where performance collapses
-- This tells us the attack will work on real (noisy) quantum hardware as long as error rates stay below ~30%, which is already achievable on current devices
+- We corrupted up to 40% of measurements with random noise. The algorithm maintains near-perfect success below 30% noise, then collapses at 35-40% through a sharp phase transition
+- Current quantum hardware already achieves error rates below 30%, placing the attack within reach of near-term devices
 
 **[Place Fig 4: Timing Curves]**
 
-- Simulation time on a classical computer grows exponentially with key size (because simulating quantum mechanics is hard for classical computers), confirming that these attacks genuinely require quantum hardware to scale
+- Classical simulation time grows exponentially with key size, confirming that scaling these attacks requires quantum hardware
 
 ---
 
-## SO WHAT DOES THIS MEAN FOR REAL ENCRYPTION?
+## WHAT THIS MEANS FOR REAL ENCRYPTION
 
-Everything above used small toy ciphers (3-8 bit keys) to prove the attacks work. But real ciphers use 64-128+ bit keys. Does the threat scale?
+The experiments above used 3-8 bit keys. Real ciphers use 64-128+ bit keys. We tested whether the attack scales.
+
+**[Place Fig 16: PRINCE Timing]**
+
+- We ran Simon's algorithm on PRINCE-like ciphers from n=3 to n=127. The quantum attack cracked a 127-bit key in 21 milliseconds. Classical brute-force timed out at n=27 (57 seconds), and the extrapolated classical curve crosses the age of the universe around n=60
 
 **[Place Fig 9: PRINCE Security Reduction]**
 
-- PRINCE-64 is a real cipher deployed in IoT devices, smart cards, and embedded systems. It uses the **same Even-Mansour structure** we broke in Attack 1
-- Classically, PRINCE has 127 bits of security — meaning you'd need ~10^38 operations to crack it. Using a Grover-meet-Simon hybrid (combining our Attack 1 with Grover search), security drops to **just 37 bits** — crackable in ~10^11 operations
-- That's a **90-bit reduction** — the equivalent of downgrading a bank vault to a bicycle lock
+- PRINCE-64 is deployed in IoT devices, smart cards, and embedded systems. It uses the Even-Mansour structure from Attack 1
+- Classical security: 127 bits (10^38 operations). Grover-meet-Simon hybrid security: 37 bits (10^11 operations). That is a 90-bit reduction
 
 **[Place Fig 8: Resource Estimates]**
 
-- These attacks aren't free — they require large quantum computers that don't exist yet:
+- These attacks need quantum computers that do not exist yet:
   - PRINCE: ~371,000 physical qubits
   - AES-128: ~802,000 physical qubits
   - AES-256: ~1.58 million physical qubits
-- For comparison, IBM's current largest chip has 1,121 qubits. But quantum hardware is scaling rapidly — these numbers may be reachable within 10-15 years
+- IBM's largest current chip has 1,121 qubits. Projected timelines suggest machines this size may arrive within 10-15 years
 
-### Key Takeaways
+### Takeaways
 
-- **The threat is real but not yet practical.** These attacks require quantum computers ~1000x larger than today's, but the math works and the attacks are proven
-- **"Just double the key" is not always enough.** Simon's algorithm doesn't care about key length — it scales linearly, not exponentially
-- **Cipher design matters more than key size.** The vulnerability isn't in short keys; it's in the mathematical structure of the cipher itself
-- **The time to act is now.** Encrypted data stolen today could be decrypted by future quantum computers ("harvest now, decrypt later"). Ciphers need to be redesigned before quantum hardware catches up
+- Simon's algorithm reduces key recovery from 10^19 attempts to ~128 measurements for a 128-bit key
+- All attacks succeed 100% of the time at n >= 4, using about 1.1n queries
+- Noise below 30% does not degrade performance. Above 35%, success collapses
+- Round count has no effect on the slide attack
+- PRINCE-64 drops from 127-bit to 37-bit security under the quantum hybrid attack
+- Data encrypted today can be stored and decrypted when quantum hardware matures. Cipher designs need to account for this timeline
 
 ---
 
 ## ACKNOWLEDGEMENTS
 
-- Attacks based on foundational work by Kuwakado & Morii (2010, 2012) and Kaplan et al. (2016)
-- PRINCE/FX hybrid attack by Leander & May (2017)
-- Implemented using IBM Qiskit for quantum circuit simulation
-- Resource estimates based on Jaques et al. (2020)
+- Kuwakado & Morii (2010, 2012): first Simon's algorithm attacks on Even-Mansour and Feistel
+- Kaplan et al. (2016): quantum slide attack framework
+- Leander & May (2017): Grover-meet-Simon hybrid for PRINCE/FX
+- Jaques et al. (2020): AES quantum resource estimation
+- Implemented with IBM Qiskit for quantum circuit simulation
