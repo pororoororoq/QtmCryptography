@@ -698,116 +698,13 @@ def fig_simons_worked_example():
 
 # ── Figure 13: Even-Mansour Oracle Circuit ───────────────────────
 def fig_even_mansour_worked():
-    """Quantum circuit with Even-Mansour oracle internals exposed."""
-    fig, ax = plt.subplots(figsize=(9, 3.2))
+    """Quantum circuit with Even-Mansour oracle, annotated for non-experts."""
+    fig, ax = plt.subplots(figsize=(9, 3.8))
     ax.set_xlim(0, 11)
-    ax.set_ylim(-0.5, 4.5)
+    ax.set_ylim(-0.6, 5.0)
     ax.axis("off")
 
-    ax.text(5.5, 4.2, "Even-Mansour:  E(x) = P(x ⊕ k₁) ⊕ k₂",
-            fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
-                      edgecolor=COLORS["sage"], linewidth=1))
-
-    yx, yy = 3.0, 1.0
-    blw = 2.5
-    gh = 0.35
-
-    ax.text(0.15, yx, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.15, yy, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.05, yx + 0.4, "input", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
-    ax.text(0.05, yy + 0.4, "output", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
-
-    ax.plot([0.25, 10.3], [yx, yx], color=COLORS["dark"], lw=blw, zorder=1)
-    ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
-
-    def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10):
-        r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
-                           facecolor=COLORS["mint"], edgecolor=ec,
-                           lw=1.5, zorder=3)
-        ax.add_patch(r)
-        ax.text(cx, cy, label, fontsize=fs,
-                ha="center", va="center", color=COLORS["navy"], family="serif")
-
-    def draw_cnot(cx):
-        ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
-                color=COLORS["navy"], lw=1.3, zorder=2)
-        ax.plot(cx, yx, 'o', color=COLORS["navy"], ms=5, zorder=4)
-        c = plt.Circle((cx, yy), 0.13, fill=True, facecolor="white",
-                        edgecolor=COLORS["navy"], lw=1.5, zorder=4)
-        ax.add_patch(c)
-        ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
-                color=COLORS["navy"], zorder=5)
-
-    def draw_meter(cx, cy):
-        bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
-                         edgecolor="white", lw=0, zorder=3)
-        ax.add_patch(bg)
-        arc = plt.Circle((cx, cy - 0.05), 0.2, fill=False,
-                          edgecolor=COLORS["navy"], lw=1.5, zorder=4)
-        ax.add_patch(arc)
-        ax.plot([cx, cx + 0.1], [cy - 0.05, cy + 0.2],
-                color=COLORS["navy"], lw=1.5, zorder=5)
-        ax.plot([cx - 0.2, cx + 0.2], [cy - 0.25, cy - 0.25],
-                color=COLORS["navy"], lw=1.5, zorder=5)
-
-    draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
-
-    ox1, ox2 = 1.5, 7.5
-    oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
-                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
-                                 lw=1.5, linestyle=(0, (5, 3)),
-                                 zorder=0, alpha=0.25)
-    ax.add_patch(oracle_rect)
-
-    # Stage 1: compute E(x), CNOT to output, uncompute
-    draw_gate(2.7, yx, "E", w=0.6)
-    draw_cnot(3.35)
-    draw_gate(4.0, yx, "E†", w=0.6)
-    ax.text(3.35, yy - 0.28, "⊕ E(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
-
-    # Stage 2: compute P(x), CNOT to output, uncompute
-    draw_gate(5.1, yx, "P", w=0.5, ec=COLORS["teal"])
-    draw_cnot(5.65)
-    draw_gate(6.2, yx, "P†", w=0.5, ec=COLORS["teal"])
-    ax.text(5.65, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
-
-    draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
-    draw_meter(9.1, yx)
-
-    ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
-            color=COLORS["navy"], family="serif")
-    ax.text(10.0, yx - 0.35, "(y·s = 0)", fontsize=8, ha="center",
-            color=COLORS["sage"])
-
-    ax.text(4.5, yy - 0.55, "Oracle Uf :  f(x) = E(x) ⊕ P(x)",
-            fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.2, "Period  s = k₁  →  Simon's recovers k₁ in O(n) queries",
-            fontsize=9.5, ha="center", color=COLORS["coral"],
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
-                      edgecolor=COLORS["coral"], lw=1.5))
-
-    fig.tight_layout(pad=0.3)
-    fig.savefig(OUT / "13_even_mansour_attack.png", dpi=300, bbox_inches="tight")
-    plt.close(fig)
-    print("  [13] Even-Mansour oracle circuit")
-
-
-# ── Figure 14: 3-Round Feistel Oracle Circuit ────────────────────
-def fig_feistel_worked():
-    """Quantum circuit with Feistel oracle internals exposed."""
-    fig, ax = plt.subplots(figsize=(9, 3.2))
-    ax.set_xlim(0, 11)
-    ax.set_ylim(-0.5, 4.5)
-    ax.axis("off")
-
-    ax.text(5.5, 4.2, "3-Round Feistel:  round function F(x) = S[x ⊕ k]",
+    ax.text(5.5, 4.6, "Even-Mansour:  E(x) = P(x ⊕ k₁) ⊕ k₂",
             fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
                       edgecolor=COLORS["sage"], linewidth=1))
@@ -829,21 +726,12 @@ def fig_feistel_worked():
     ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
 
     def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
-                  label2=None, fs2=7):
+                  fc=COLORS["mint"], tc=COLORS["navy"]):
         r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
-                           facecolor=COLORS["mint"], edgecolor=ec,
-                           lw=1.5, zorder=3)
+                           facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
         ax.add_patch(r)
-        if label2:
-            ax.text(cx, cy + 0.1, label, fontsize=fs,
-                    ha="center", va="center", color=COLORS["navy"],
-                    family="monospace")
-            ax.text(cx, cy - 0.15, label2, fontsize=fs2,
-                    ha="center", va="center", color=COLORS["sage"])
-        else:
-            ax.text(cx, cy, label, fontsize=fs,
-                    ha="center", va="center", color=COLORS["navy"],
-                    family="serif")
+        ax.text(cx, cy, label, fontsize=fs,
+                ha="center", va="center", color=tc, family="serif")
 
     def draw_cnot(cx):
         ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
@@ -854,6 +742,8 @@ def fig_feistel_worked():
         ax.add_patch(c)
         ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
                 color=COLORS["navy"], zorder=5)
+        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
+                color=COLORS["sage"], style="italic")
 
     def draw_meter(cx, cy):
         bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
@@ -868,6 +758,8 @@ def fig_feistel_worked():
                 color=COLORS["navy"], lw=1.5, zorder=5)
 
     draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
+    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
 
     ox1, ox2 = 1.5, 7.5
     oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
@@ -876,22 +768,142 @@ def fig_feistel_worked():
                                  zorder=0, alpha=0.25)
     ax.add_patch(oracle_rect)
 
-    # Stage 1: encrypt (x,0), take left half, CNOT, uncompute
-    draw_gate(2.6, yx, "E(·,0)", w=0.85, fs=9, label2="left half", fs2=6)
-    draw_cnot(3.4)
-    draw_gate(3.95, yx, "E†", w=0.5)
-    ax.text(3.15, yy - 0.28, "⊕ E_L(x,0)", fontsize=7.5, ha="center",
+    draw_gate(2.5, yx, "E", w=0.6)
+    draw_cnot(3.15)
+    draw_gate(3.95, yx, "undo E", w=0.8, fs=8)
+    ax.text(3.15, yy - 0.28, "⊕ E(x)", fontsize=8, ha="center",
             color=COLORS["coral"])
 
-    # Stage 2: encrypt (x,1), take left half, CNOT, uncompute
-    draw_gate(5.1, yx, "E(·,1)", w=0.85, fs=9, label2="left half", fs2=6)
-    draw_cnot(5.9)
-    draw_gate(6.45, yx, "E†", w=0.5)
-    ax.text(5.65, yy - 0.28, "⊕ E_L(x,1)", fontsize=7.5, ha="center",
+    draw_gate(5.05, yx, "P", w=0.5, ec=COLORS["teal"])
+    draw_cnot(5.6)
+    draw_gate(6.3, yx, "undo P", w=0.8, fs=8, ec=COLORS["teal"])
+    ax.text(5.6, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
             color=COLORS["coral"])
 
     draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
+    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
     draw_meter(9.1, yx)
+    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"], family="serif")
+    ax.text(10.0, yx - 0.35, "(y·s = 0)", fontsize=8, ha="center",
+            color=COLORS["sage"])
+
+    ax.text(4.5, yy - 0.55, "Oracle Uf :  f(x) = E(x) ⊕ P(x)",
+            fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
+    ax.text(5.5, -0.35, "Period  s = k₁  →  Simon's recovers k₁ in O(n) queries",
+            fontsize=9.5, ha="center", color=COLORS["coral"],
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
+                      edgecolor=COLORS["coral"], lw=1.5))
+
+    fig.tight_layout(pad=0.3)
+    fig.savefig(OUT / "13_even_mansour_attack.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [13] Even-Mansour oracle circuit")
+
+
+# ── Figure 14: 3-Round Feistel Oracle Circuit ────────────────────
+def fig_feistel_worked():
+    """Quantum circuit with Feistel oracle, annotated for non-experts."""
+    fig, ax = plt.subplots(figsize=(9, 3.8))
+    ax.set_xlim(0, 11)
+    ax.set_ylim(-0.6, 5.0)
+    ax.axis("off")
+
+    ax.text(5.5, 4.6, "3-Round Feistel:  round function F(x) = S[x ⊕ k]",
+            fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
+                      edgecolor=COLORS["sage"], linewidth=1))
+
+    yx, yy = 3.0, 1.0
+    blw = 2.5
+    gh = 0.35
+
+    ax.text(0.15, yx, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
+            family="serif", color=COLORS["dark"])
+    ax.text(0.15, yy, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
+            family="serif", color=COLORS["dark"])
+    ax.text(0.05, yx + 0.4, "input", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+    ax.text(0.05, yy + 0.4, "output", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    ax.plot([0.25, 10.3], [yx, yx], color=COLORS["dark"], lw=blw, zorder=1)
+    ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
+
+    def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
+                  fc=COLORS["mint"], tc=COLORS["navy"],
+                  label2=None, fs2=7):
+        r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
+                           facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
+        ax.add_patch(r)
+        if label2:
+            ax.text(cx, cy + 0.1, label, fontsize=fs,
+                    ha="center", va="center", color=tc, family="monospace")
+            ax.text(cx, cy - 0.15, label2, fontsize=fs2,
+                    ha="center", va="center", color=COLORS["sage"])
+        else:
+            ax.text(cx, cy, label, fontsize=fs,
+                    ha="center", va="center", color=tc, family="serif")
+
+    def draw_cnot(cx):
+        ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
+                color=COLORS["navy"], lw=1.3, zorder=2)
+        ax.plot(cx, yx, 'o', color=COLORS["navy"], ms=5, zorder=4)
+        c = plt.Circle((cx, yy), 0.13, fill=True, facecolor="white",
+                        edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+        ax.add_patch(c)
+        ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
+                color=COLORS["navy"], zorder=5)
+        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
+                color=COLORS["sage"], style="italic")
+
+    def draw_meter(cx, cy):
+        bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
+                         edgecolor="white", lw=0, zorder=3)
+        ax.add_patch(bg)
+        arc = plt.Circle((cx, cy - 0.05), 0.2, fill=False,
+                          edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+        ax.add_patch(arc)
+        ax.plot([cx, cx + 0.1], [cy - 0.05, cy + 0.2],
+                color=COLORS["navy"], lw=1.5, zorder=5)
+        ax.plot([cx - 0.2, cx + 0.2], [cy - 0.25, cy - 0.25],
+                color=COLORS["navy"], lw=1.5, zorder=5)
+
+    draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
+    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    ox1, ox2 = 1.5, 7.5
+    oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
+                                 facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                                 lw=1.5, linestyle=(0, (5, 3)),
+                                 zorder=0, alpha=0.25)
+    ax.add_patch(oracle_rect)
+
+    draw_gate(2.5, yx, "E(·,0)", w=0.85, fs=9, label2="left half", fs2=6)
+    draw_cnot(3.3)
+    draw_gate(3.9, yx, "undo", w=0.55, fs=9)
+    ax.text(3.1, yy - 0.28, "⊕ E_L(x,0)", fontsize=7.5, ha="center",
+            color=COLORS["coral"])
+
+    draw_gate(5.0, yx, "E(·,1)", w=0.85, fs=9, label2="left half", fs2=6)
+    draw_cnot(5.8)
+    draw_gate(6.4, yx, "undo", w=0.55, fs=9)
+    ax.text(5.6, yy - 0.28, "⊕ E_L(x,1)", fontsize=7.5, ha="center",
+            color=COLORS["coral"])
+
+    draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
+    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    draw_meter(9.1, yx)
+    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
 
     ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
             color=COLORS["navy"], family="serif")
@@ -901,7 +913,7 @@ def fig_feistel_worked():
     ax.text(4.5, yy - 0.55,
             "Oracle Uf :  f(x) = E_L(x,0) ⊕ E_L(x,1)",
             fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.2,
+    ax.text(5.5, -0.35,
             "Period  s = S[k] ⊕ S[1⊕k]  →  Simon's recovers s, brute-force k",
             fontsize=9.5, ha="center", color=COLORS["coral"],
             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
@@ -915,13 +927,13 @@ def fig_feistel_worked():
 
 # ── Figure 15: Slide Attack Oracle Circuit ───────────────────────
 def fig_slide_worked():
-    """Quantum circuit with slide attack oracle internals exposed."""
-    fig, ax = plt.subplots(figsize=(9, 3.2))
+    """Quantum circuit with slide attack oracle, annotated for non-experts."""
+    fig, ax = plt.subplots(figsize=(9, 3.8))
     ax.set_xlim(0, 11)
-    ax.set_ylim(-0.5, 4.5)
+    ax.set_ylim(-0.6, 5.0)
     ax.axis("off")
 
-    ax.text(5.5, 4.2,
+    ax.text(5.5, 4.6,
             "Iterated cipher:  E = Fk ∘ ··· ∘ Fk  (r rounds),  Fk(x) = P(x ⊕ k)",
             fontsize=9.5, ha="center", color=COLORS["dark"], family="monospace",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
@@ -946,8 +958,7 @@ def fig_slide_worked():
     def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
                   fc=COLORS["mint"], tc=COLORS["navy"]):
         r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
-                           facecolor=fc, edgecolor=ec,
-                           lw=1.5, zorder=3)
+                           facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
         ax.add_patch(r)
         ax.text(cx, cy, label, fontsize=fs,
                 ha="center", va="center", color=tc, family="serif")
@@ -961,6 +972,8 @@ def fig_slide_worked():
         ax.add_patch(c)
         ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
                 color=COLORS["navy"], zorder=5)
+        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
+                color=COLORS["sage"], style="italic")
 
     def draw_meter(cx, cy):
         bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
@@ -975,6 +988,8 @@ def fig_slide_worked():
                 color=COLORS["navy"], lw=1.5, zorder=5)
 
     draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
+    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
 
     ox1, ox2 = 1.5, 7.5
     oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
@@ -983,24 +998,31 @@ def fig_slide_worked():
                                  zorder=0, alpha=0.25)
     ax.add_patch(oracle_rect)
 
-    # Stage 1: compute Fk(x), CNOT to output, uncompute
-    draw_gate(2.7, yx, "Fk", w=0.6, ec=COLORS["coral"],
+    draw_gate(2.5, yx, "Fk", w=0.6, ec=COLORS["coral"],
               fc="#FDE8E9", tc=COLORS["coral"])
-    draw_cnot(3.35)
-    draw_gate(4.0, yx, "Fk†", w=0.6, ec=COLORS["coral"],
+    ax.text(2.5, yx + gh + 0.15, "1 round", fontsize=7, ha="center",
+            color=COLORS["coral"], style="italic")
+    draw_cnot(3.15)
+    draw_gate(3.95, yx, "undo Fk", w=0.85, fs=8, ec=COLORS["coral"],
               fc="#FDE8E9", tc=COLORS["coral"])
-    ax.text(3.35, yy - 0.28, "⊕ Fk(x)", fontsize=8, ha="center",
+    ax.text(3.15, yy - 0.28, "⊕ Fk(x)", fontsize=8, ha="center",
             color=COLORS["coral"])
 
-    # Stage 2: compute P(x), CNOT to output, uncompute
     draw_gate(5.1, yx, "P", w=0.5, ec=COLORS["teal"])
-    draw_cnot(5.65)
-    draw_gate(6.2, yx, "P†", w=0.5, ec=COLORS["teal"])
-    ax.text(5.65, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
+    ax.text(5.1, yx + gh + 0.15, "public", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+    draw_cnot(5.6)
+    draw_gate(6.3, yx, "undo P", w=0.8, fs=8, ec=COLORS["teal"])
+    ax.text(5.6, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
             color=COLORS["coral"])
 
     draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
+    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
+
     draw_meter(9.1, yx)
+    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
+            color=COLORS["sage"], style="italic")
 
     ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
             color=COLORS["navy"], family="serif")
@@ -1009,7 +1031,7 @@ def fig_slide_worked():
 
     ax.text(4.5, yy - 0.55, "Oracle Uf :  f(x) = Fk(x) ⊕ P(x)",
             fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.2,
+    ax.text(5.5, -0.35,
             "Period  s = k  →  direct key recovery in O(n) queries, any r",
             fontsize=9.5, ha="center", color=COLORS["coral"],
             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
