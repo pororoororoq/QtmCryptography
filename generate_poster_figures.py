@@ -696,351 +696,637 @@ def fig_simons_worked_example():
     print("  [12] Simon's worked example")
 
 
-# ── Figure 13: Even-Mansour Oracle Circuit ───────────────────────
+# ── Figure 13: Even-Mansour Oracle Circuit (n=3, gate-level) ─────
 def fig_even_mansour_worked():
-    """Quantum circuit with Even-Mansour oracle, annotated for non-experts."""
-    fig, ax = plt.subplots(figsize=(9, 3.8))
-    ax.set_xlim(0, 11)
-    ax.set_ylim(-0.6, 5.0)
+    """Quantum circuit: Even-Mansour oracle with n=3 individual wires,
+    showing gate-level construction of E = XOR k1 -> P -> XOR k2."""
+    fig, ax = plt.subplots(figsize=(13, 7))
+    ax.set_xlim(0, 14.5)
+    ax.set_ylim(-1.2, 9.0)
     ax.axis("off")
 
-    ax.text(5.5, 4.6, "Even-Mansour:  E(x) = P(x ⊕ k₁) ⊕ k₂",
-            fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
+    # Title / equation
+    ax.text(7.25, 8.5, "Even-Mansour:  E(x) = P(x ⊕ k₁) ⊕ k₂",
+            fontsize=11, ha="center", color=COLORS["dark"], family="monospace",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
                       edgecolor=COLORS["sage"], linewidth=1))
 
-    yx, yy = 3.0, 1.0
-    blw = 2.5
-    gh = 0.35
+    # Wire y-positions (6 qubits: 3 input, 3 output)
+    iy = [6.4, 5.6, 4.8]   # q0, q1, q2 — input register
+    oy = [2.6, 1.8, 1.0]   # q3, q4, q5 — output register
+    x_start, x_end = 0.7, 14.0
+    gh = 0.28  # gate half-height
 
-    ax.text(0.15, yx, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.15, yy, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.05, yx + 0.4, "input", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
-    ax.text(0.05, yy + 0.4, "output", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
+    # Draw wires
+    for y in iy + oy:
+        ax.plot([x_start, x_end], [y, y], color=COLORS["dark"], lw=0.8, zorder=1)
 
-    ax.plot([0.25, 10.3], [yx, yx], color=COLORS["dark"], lw=blw, zorder=1)
-    ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
+    # Wire labels
+    for i, y in enumerate(iy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
+    for i, y in enumerate(oy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i+3}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
 
-    def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
-                  fc=COLORS["mint"], tc=COLORS["navy"]):
+    # Register labels
+    ax.annotate("", xy=(0.12, iy[-1] - 0.25), xytext=(0.12, iy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (iy[0] + iy[-1]) / 2, "input", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+    ax.annotate("", xy=(0.12, oy[-1] - 0.25), xytext=(0.12, oy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (oy[0] + oy[-1]) / 2, "output", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+
+    # Helper: single-qubit gate
+    def sq_gate(cx, cy, label, ec=COLORS["navy"], fc=COLORS["mint"],
+                tc=COLORS["navy"], fs=10, w=0.44):
         r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
+                           facecolor=fc, edgecolor=ec, lw=1.3, zorder=3)
+        ax.add_patch(r)
+        ax.text(cx, cy, label, fontsize=fs, ha="center", va="center",
+                color=tc, family="serif", zorder=4)
+
+    # Helper: multi-qubit block spanning several wires
+    def block_gate(cx, y_top, y_bot, label, ec=COLORS["navy"],
+                   fc=COLORS["mint"], tc=COLORS["navy"], fs=10, w=0.6,
+                   label2=None, fs2=7):
+        pad = 0.15
+        h = (y_top - y_bot) + 2 * gh + 2 * pad
+        r = plt.Rectangle((cx - w / 2, y_bot - gh - pad), w, h,
                            facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
         ax.add_patch(r)
-        ax.text(cx, cy, label, fontsize=fs,
-                ha="center", va="center", color=tc, family="serif")
+        mid = (y_top + y_bot) / 2
+        ax.text(cx, mid + (0.12 if label2 else 0), label, fontsize=fs,
+                ha="center", va="center", color=tc, family="serif", zorder=4)
+        if label2:
+            ax.text(cx, mid - 0.25, label2, fontsize=fs2, ha="center",
+                    va="center", color=COLORS["sage"], zorder=4)
 
-    def draw_cnot(cx):
-        ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
-                color=COLORS["navy"], lw=1.3, zorder=2)
-        ax.plot(cx, yx, 'o', color=COLORS["navy"], ms=5, zorder=4)
-        c = plt.Circle((cx, yy), 0.13, fill=True, facecolor="white",
-                        edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    # Helper: CNOT from input wire i to output wire i
+    def cnot_pair(cx, idx):
+        yi, yo = iy[idx], oy[idx]
+        ax.plot([cx, cx], [yi, yo], color=COLORS["navy"], lw=1.0, zorder=2)
+        ax.plot(cx, yi, 'o', color=COLORS["navy"], ms=4, zorder=4)
+        c = plt.Circle((cx, yo), 0.12, fill=True, facecolor="white",
+                        edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(c)
-        ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
-                color=COLORS["navy"], zorder=5)
-        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
-                color=COLORS["sage"], style="italic")
+        ax.text(cx, yo, "+", fontsize=8, ha="center", va="center",
+                color=COLORS["navy"], zorder=5, weight="bold")
 
-    def draw_meter(cx, cy):
-        bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
-                         edgecolor="white", lw=0, zorder=3)
-        ax.add_patch(bg)
-        arc = plt.Circle((cx, cy - 0.05), 0.2, fill=False,
-                          edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    # Helper: measurement symbol
+    def meter(cx, cy):
+        arc = plt.Circle((cx, cy - 0.04), 0.18, fill=False,
+                          edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(arc)
-        ax.plot([cx, cx + 0.1], [cy - 0.05, cy + 0.2],
-                color=COLORS["navy"], lw=1.5, zorder=5)
-        ax.plot([cx - 0.2, cx + 0.2], [cy - 0.25, cy - 0.25],
-                color=COLORS["navy"], lw=1.5, zorder=5)
+        ax.plot([cx, cx + 0.08], [cy - 0.04, cy + 0.18],
+                color=COLORS["navy"], lw=1.3, zorder=5)
+        ax.plot([cx - 0.18, cx + 0.18], [cy - 0.22, cy - 0.22],
+                color=COLORS["navy"], lw=1.3, zorder=5)
 
-    draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
-    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+    # === STAGE 1: Hadamard (superpose) ===
+    xH1 = 1.3
+    for y in iy:
+        sq_gate(xH1, y, "H")
+    ax.text(xH1, iy[0] + 0.55, "superpose", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    ox1, ox2 = 1.5, 7.5
-    oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
+    # === ORACLE DASHED BOX ===
+    ox1, ox2 = 2.0, 11.6
+    oracle_rect = plt.Rectangle((ox1, oy[-1] - 0.55), ox2 - ox1,
+                                 iy[0] - oy[-1] + 1.1,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  lw=1.5, linestyle=(0, (5, 3)),
-                                 zorder=0, alpha=0.25)
+                                 zorder=0, alpha=0.2)
     ax.add_patch(oracle_rect)
 
-    draw_gate(2.5, yx, "E", w=0.6)
-    draw_cnot(3.15)
-    draw_gate(3.95, yx, "undo E", w=0.8, fs=8)
-    ax.text(3.15, yy - 0.28, "⊕ E(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
+    # --- ARM 1: Compute E(x) ---
+    # XOR k1 = 101 → X on q0, q2
+    xk1 = 2.7
+    sq_gate(xk1, iy[0], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    sq_gate(xk1, iy[2], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    ax.text(xk1, iy[0] + 0.55, "⊕k₁", fontsize=8, ha="center",
+            color=COLORS["coral"], weight="bold")
+    ax.text(xk1, iy[2] - 0.55, "k₁ = 101", fontsize=7, ha="center",
+            color=COLORS["coral"], style="italic")
 
-    draw_gate(5.05, yx, "P", w=0.5, ec=COLORS["teal"])
-    draw_cnot(5.6)
-    draw_gate(6.3, yx, "undo P", w=0.8, fs=8, ec=COLORS["teal"])
-    ax.text(5.6, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
-
-    draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
-    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+    # Permutation P
+    xP1 = 3.6
+    block_gate(xP1, iy[0], iy[2], "P", ec=COLORS["teal"], w=0.55, fs=11)
+    ax.text(xP1, iy[0] + 0.55, "permute", fontsize=7, ha="center",
             color=COLORS["sage"], style="italic")
 
-    draw_meter(9.1, yx)
-    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
+    # XOR k2 = 011 → X on q1, q2
+    xk2 = 4.5
+    sq_gate(xk2, iy[1], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    sq_gate(xk2, iy[2], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    ax.text(xk2, iy[0] + 0.55, "⊕k₂", fontsize=8, ha="center",
+            color=COLORS["coral"], weight="bold")
+    ax.text(xk2, iy[2] - 0.55, "k₂ = 011", fontsize=7, ha="center",
+            color=COLORS["coral"], style="italic")
+
+    # Bracket annotation: "= E(x)"
+    bx1, bx2 = xk1 - 0.35, xk2 + 0.35
+    by = iy[0] + 0.95
+    ax.annotate("", xy=(bx1, by), xytext=(bx2, by),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["navy"]))
+    ax.plot([bx1, bx1], [by, by - 0.1], color=COLORS["navy"], lw=1)
+    ax.plot([bx2, bx2], [by, by - 0.1], color=COLORS["navy"], lw=1)
+    ax.text((bx1 + bx2) / 2, by + 0.15, "compute E(x)", fontsize=8,
+            ha="center", color=COLORS["navy"], weight="bold")
+
+    # CNOT copy to output
+    xC1 = 5.4
+    for i in range(3):
+        cnot_pair(xC1 + i * 0.35, i)
+    ax.text(xC1 + 0.35, oy[0] + 0.55, "copy E(x)\nto output",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
+
+    # Undo E (single block)
+    xU1 = 6.6
+    block_gate(xU1, iy[0], iy[2], "undo\nE", ec=COLORS["navy"],
+               fc=COLORS["mint"], fs=9, w=0.7)
+
+    # --- ARM 2: Compute P(x) ---
+    xP2 = 7.7
+    block_gate(xP2, iy[0], iy[2], "P", ec=COLORS["teal"], w=0.55, fs=11)
+    ax.text(xP2, iy[0] + 0.55, "permute", fontsize=7, ha="center",
             color=COLORS["sage"], style="italic")
 
-    ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
-            color=COLORS["navy"], family="serif")
-    ax.text(10.0, yx - 0.35, "(y·s = 0)", fontsize=8, ha="center",
-            color=COLORS["sage"])
+    # CNOT copy to output (XORs with existing output → E(x) ⊕ P(x))
+    xC2 = 8.6
+    for i in range(3):
+        cnot_pair(xC2 + i * 0.35, i)
+    ax.text(xC2 + 0.35, oy[0] + 0.55, "⊕ P(x)\nto output",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
 
-    ax.text(4.5, yy - 0.55, "Oracle Uf :  f(x) = E(x) ⊕ P(x)",
-            fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.35, "Period  s = k₁  →  Simon's recovers k₁ in O(n) queries",
-            fontsize=9.5, ha="center", color=COLORS["coral"],
+    # Undo P
+    xU2 = 9.8
+    block_gate(xU2, iy[0], iy[2], "undo\nP", ec=COLORS["teal"],
+               fc=COLORS["mint"], fs=9, w=0.7)
+
+    # Bracket for arm 2
+    bx1b, bx2b = xP2 - 0.4, xU2 + 0.45
+    by2 = iy[0] + 0.95
+    ax.annotate("", xy=(bx1b, by2), xytext=(bx2b, by2),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["teal"]))
+    ax.plot([bx1b, bx1b], [by2, by2 - 0.1], color=COLORS["teal"], lw=1)
+    ax.plot([bx2b, bx2b], [by2, by2 - 0.1], color=COLORS["teal"], lw=1)
+    ax.text((bx1b + bx2b) / 2, by2 + 0.15, "⊕ P(x) arm", fontsize=8,
+            ha="center", color=COLORS["teal"], weight="bold")
+
+    # === STAGE 3: Hadamard (interfere) ===
+    xH2 = 12.1
+    for y in iy:
+        sq_gate(xH2, y, "H")
+    ax.text(xH2, iy[0] + 0.55, "interfere", fontsize=7.5, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    # === STAGE 4: Measure ===
+    xM = 12.9
+    for y in iy:
+        meter(xM, y)
+    ax.text(xM, iy[0] + 0.55, "measure", fontsize=7.5, ha="center",
+            color=COLORS["sage"], style="italic")
+
+    # Output labels
+    ax.text(13.7, (iy[0] + iy[2]) / 2, "y", fontsize=13, ha="center",
+            va="center", color=COLORS["navy"], family="serif")
+    ax.text(13.7, (iy[0] + iy[2]) / 2 - 0.5, "(y·s = 0)", fontsize=8,
+            ha="center", color=COLORS["sage"])
+
+    # Bottom annotations
+    ax.text(6.8, oy[-1] - 0.7,
+            "Oracle Uf :  output = E(x) ⊕ P(x)  =  f(x)",
+            fontsize=9, ha="center", color=COLORS["coral"], style="italic")
+    ax.text(7.25, -0.9,
+            "Period  s = k₁  →  Simon's recovers the secret key in O(n) queries",
+            fontsize=10, ha="center", color=COLORS["coral"],
             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
                       edgecolor=COLORS["coral"], lw=1.5))
 
     fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "13_even_mansour_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [13] Even-Mansour oracle circuit")
+    print("  [13] Even-Mansour oracle circuit (n=3, gate-level)")
 
 
-# ── Figure 14: 3-Round Feistel Oracle Circuit ────────────────────
+# ── Figure 14: 3-Round Feistel Oracle Circuit (n=3) ──────────────
 def fig_feistel_worked():
-    """Quantum circuit with Feistel oracle, annotated for non-experts."""
-    fig, ax = plt.subplots(figsize=(9, 3.8))
-    ax.set_xlim(0, 11)
-    ax.set_ylim(-0.6, 5.0)
+    """Quantum circuit: Feistel oracle with n=3 individual wires.
+    Feistel uses S-box round function so oracle shown as higher-level blocks
+    with internal structure annotated."""
+    fig, ax = plt.subplots(figsize=(13, 7))
+    ax.set_xlim(0, 14.5)
+    ax.set_ylim(-1.2, 9.0)
     ax.axis("off")
 
-    ax.text(5.5, 4.6, "3-Round Feistel:  round function F(x) = S[x ⊕ k]",
-            fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
+    ax.text(7.25, 8.5,
+            "3-Round Feistel:  F(x) = S[x ⊕ k],   oracle uses left-half outputs",
+            fontsize=10, ha="center", color=COLORS["dark"], family="monospace",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
                       edgecolor=COLORS["sage"], linewidth=1))
 
-    yx, yy = 3.0, 1.0
-    blw = 2.5
-    gh = 0.35
+    # Wire y-positions
+    iy = [6.4, 5.6, 4.8]
+    oy = [2.6, 1.8, 1.0]
+    x_start, x_end = 0.7, 14.0
+    gh = 0.28
 
-    ax.text(0.15, yx, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.15, yy, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.05, yx + 0.4, "input", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
-    ax.text(0.05, yy + 0.4, "output", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
+    for y in iy + oy:
+        ax.plot([x_start, x_end], [y, y], color=COLORS["dark"], lw=0.8, zorder=1)
 
-    ax.plot([0.25, 10.3], [yx, yx], color=COLORS["dark"], lw=blw, zorder=1)
-    ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
+    for i, y in enumerate(iy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
+    for i, y in enumerate(oy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i+3}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
 
-    def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
-                  fc=COLORS["mint"], tc=COLORS["navy"],
-                  label2=None, fs2=7):
+    ax.annotate("", xy=(0.12, iy[-1] - 0.25), xytext=(0.12, iy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (iy[0] + iy[-1]) / 2, "input", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+    ax.annotate("", xy=(0.12, oy[-1] - 0.25), xytext=(0.12, oy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (oy[0] + oy[-1]) / 2, "output", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+
+    def sq_gate(cx, cy, label, ec=COLORS["navy"], fc=COLORS["mint"],
+                tc=COLORS["navy"], fs=10, w=0.44):
         r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
+                           facecolor=fc, edgecolor=ec, lw=1.3, zorder=3)
+        ax.add_patch(r)
+        ax.text(cx, cy, label, fontsize=fs, ha="center", va="center",
+                color=tc, family="serif", zorder=4)
+
+    def block_gate(cx, y_top, y_bot, label, ec=COLORS["navy"],
+                   fc=COLORS["mint"], tc=COLORS["navy"], fs=10, w=0.7,
+                   label2=None, fs2=7):
+        pad = 0.15
+        h = (y_top - y_bot) + 2 * gh + 2 * pad
+        r = plt.Rectangle((cx - w / 2, y_bot - gh - pad), w, h,
                            facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
         ax.add_patch(r)
+        mid = (y_top + y_bot) / 2
+        ax.text(cx, mid + (0.15 if label2 else 0), label, fontsize=fs,
+                ha="center", va="center", color=tc, family="serif", zorder=4)
         if label2:
-            ax.text(cx, cy + 0.1, label, fontsize=fs,
-                    ha="center", va="center", color=tc, family="monospace")
-            ax.text(cx, cy - 0.15, label2, fontsize=fs2,
-                    ha="center", va="center", color=COLORS["sage"])
-        else:
-            ax.text(cx, cy, label, fontsize=fs,
-                    ha="center", va="center", color=tc, family="serif")
+            ax.text(cx, mid - 0.3, label2, fontsize=fs2, ha="center",
+                    va="center", color=COLORS["sage"], zorder=4)
 
-    def draw_cnot(cx):
-        ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
-                color=COLORS["navy"], lw=1.3, zorder=2)
-        ax.plot(cx, yx, 'o', color=COLORS["navy"], ms=5, zorder=4)
-        c = plt.Circle((cx, yy), 0.13, fill=True, facecolor="white",
-                        edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    def cnot_pair(cx, idx):
+        yi, yo = iy[idx], oy[idx]
+        ax.plot([cx, cx], [yi, yo], color=COLORS["navy"], lw=1.0, zorder=2)
+        ax.plot(cx, yi, 'o', color=COLORS["navy"], ms=4, zorder=4)
+        c = plt.Circle((cx, yo), 0.12, fill=True, facecolor="white",
+                        edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(c)
-        ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
-                color=COLORS["navy"], zorder=5)
-        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
-                color=COLORS["sage"], style="italic")
+        ax.text(cx, yo, "+", fontsize=8, ha="center", va="center",
+                color=COLORS["navy"], zorder=5, weight="bold")
 
-    def draw_meter(cx, cy):
-        bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
-                         edgecolor="white", lw=0, zorder=3)
-        ax.add_patch(bg)
-        arc = plt.Circle((cx, cy - 0.05), 0.2, fill=False,
-                          edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    def meter(cx, cy):
+        arc = plt.Circle((cx, cy - 0.04), 0.18, fill=False,
+                          edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(arc)
-        ax.plot([cx, cx + 0.1], [cy - 0.05, cy + 0.2],
-                color=COLORS["navy"], lw=1.5, zorder=5)
-        ax.plot([cx - 0.2, cx + 0.2], [cy - 0.25, cy - 0.25],
-                color=COLORS["navy"], lw=1.5, zorder=5)
+        ax.plot([cx, cx + 0.08], [cy - 0.04, cy + 0.18],
+                color=COLORS["navy"], lw=1.3, zorder=5)
+        ax.plot([cx - 0.18, cx + 0.18], [cy - 0.22, cy - 0.22],
+                color=COLORS["navy"], lw=1.3, zorder=5)
 
-    draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
-    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+    # Hadamard
+    xH1 = 1.3
+    for y in iy:
+        sq_gate(xH1, y, "H")
+    ax.text(xH1, iy[0] + 0.55, "superpose", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    ox1, ox2 = 1.5, 7.5
-    oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
+    # Oracle box
+    ox1, ox2 = 2.0, 11.6
+    oracle_rect = plt.Rectangle((ox1, oy[-1] - 0.55), ox2 - ox1,
+                                 iy[0] - oy[-1] + 1.1,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  lw=1.5, linestyle=(0, (5, 3)),
-                                 zorder=0, alpha=0.25)
+                                 zorder=0, alpha=0.2)
     ax.add_patch(oracle_rect)
 
-    draw_gate(2.5, yx, "E(·,0)", w=0.85, fs=9, label2="left half", fs2=6)
-    draw_cnot(3.3)
-    draw_gate(3.9, yx, "undo", w=0.55, fs=9)
-    ax.text(3.1, yy - 0.28, "⊕ E_L(x,0)", fontsize=7.5, ha="center",
-            color=COLORS["coral"])
+    # --- ARM 1: E(x, 0) → take left half ---
+    # Feistel encrypt block with input x and right=0
+    xE1 = 3.3
+    block_gate(xE1, iy[0], iy[2], "E(·,0)", ec=COLORS["navy"],
+               fc=COLORS["mint"], fs=9, w=1.0,
+               label2="3-round Feistel")
 
-    draw_gate(5.0, yx, "E(·,1)", w=0.85, fs=9, label2="left half", fs2=6)
-    draw_cnot(5.8)
-    draw_gate(6.4, yx, "undo", w=0.55, fs=9)
-    ax.text(5.6, yy - 0.28, "⊕ E_L(x,1)", fontsize=7.5, ha="center",
-            color=COLORS["coral"])
+    # Annotation: internal structure of E
+    ax.text(xE1, iy[2] - 0.7,
+            "⊕k → S-box → ⊕k → S-box → ⊕k → S-box",
+            fontsize=6.5, ha="center", color=COLORS["navy"], style="italic",
+            bbox=dict(boxstyle="round,pad=0.15", facecolor="white",
+                      edgecolor=COLORS["sage"], lw=0.8, alpha=0.8))
 
-    draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
-    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+    # Take left half → CNOT to output
+    xC1 = 4.5
+    for i in range(3):
+        cnot_pair(xC1 + i * 0.35, i)
+    ax.text(xC1 + 0.35, oy[0] + 0.55, "copy left\nhalf E(x,0)",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
+
+    # Undo E(·,0)
+    xU1 = 5.7
+    block_gate(xU1, iy[0], iy[2], "undo\nE(·,0)", ec=COLORS["navy"],
+               fc=COLORS["mint"], fs=8, w=0.9)
+
+    # Bracket arm 1
+    bx1, bx2 = xE1 - 0.6, xU1 + 0.55
+    by = iy[0] + 0.95
+    ax.annotate("", xy=(bx1, by), xytext=(bx2, by),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["navy"]))
+    ax.plot([bx1, bx1], [by, by - 0.1], color=COLORS["navy"], lw=1)
+    ax.plot([bx2, bx2], [by, by - 0.1], color=COLORS["navy"], lw=1)
+    ax.text((bx1 + bx2) / 2, by + 0.15, "⊕ E_L(x, 0)", fontsize=8,
+            ha="center", color=COLORS["navy"], weight="bold")
+
+    # --- ARM 2: E(x, 1) → take left half ---
+    xE2 = 7.5
+    block_gate(xE2, iy[0], iy[2], "E(·,1)", ec=COLORS["coral"],
+               fc="#FDE8E9", tc=COLORS["coral"], fs=9, w=1.0,
+               label2="3-round Feistel")
+
+    xC2 = 8.7
+    for i in range(3):
+        cnot_pair(xC2 + i * 0.35, i)
+    ax.text(xC2 + 0.35, oy[0] + 0.55, "⊕ left\nhalf E(x,1)",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
+
+    xU2 = 9.9
+    block_gate(xU2, iy[0], iy[2], "undo\nE(·,1)", ec=COLORS["coral"],
+               fc="#FDE8E9", tc=COLORS["coral"], fs=8, w=0.9)
+
+    # Bracket arm 2
+    bx1b, bx2b = xE2 - 0.6, xU2 + 0.55
+    by2 = iy[0] + 0.95
+    ax.annotate("", xy=(bx1b, by2), xytext=(bx2b, by2),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["coral"]))
+    ax.plot([bx1b, bx1b], [by2, by2 - 0.1], color=COLORS["coral"], lw=1)
+    ax.plot([bx2b, bx2b], [by2, by2 - 0.1], color=COLORS["coral"], lw=1)
+    ax.text((bx1b + bx2b) / 2, by2 + 0.15, "⊕ E_L(x, 1)", fontsize=8,
+            ha="center", color=COLORS["coral"], weight="bold")
+
+    # Hadamard (interfere)
+    xH2 = 12.1
+    for y in iy:
+        sq_gate(xH2, y, "H")
+    ax.text(xH2, iy[0] + 0.55, "interfere", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    draw_meter(9.1, yx)
-    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
+    # Measure
+    xM = 12.9
+    for y in iy:
+        meter(xM, y)
+    ax.text(xM, iy[0] + 0.55, "measure", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
-            color=COLORS["navy"], family="serif")
-    ax.text(10.0, yx - 0.35, "(y·s = 0)", fontsize=8, ha="center",
-            color=COLORS["sage"])
+    ax.text(13.7, (iy[0] + iy[2]) / 2, "y", fontsize=13, ha="center",
+            va="center", color=COLORS["navy"], family="serif")
+    ax.text(13.7, (iy[0] + iy[2]) / 2 - 0.5, "(y·s = 0)", fontsize=8,
+            ha="center", color=COLORS["sage"])
 
-    ax.text(4.5, yy - 0.55,
-            "Oracle Uf :  f(x) = E_L(x,0) ⊕ E_L(x,1)",
-            fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.35,
-            "Period  s = S[k] ⊕ S[1⊕k]  →  Simon's recovers s, brute-force k",
-            fontsize=9.5, ha="center", color=COLORS["coral"],
+    # Bottom annotations
+    ax.text(6.8, oy[-1] - 0.7,
+            "Oracle Uf :  output = E_L(x,0) ⊕ E_L(x,1)  =  f(x)",
+            fontsize=9, ha="center", color=COLORS["coral"], style="italic")
+    ax.text(7.25, -0.9,
+            "Period  s = S[k] ⊕ S[1⊕k]  →  Simon's finds s, then brute-force k",
+            fontsize=10, ha="center", color=COLORS["coral"],
             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
                       edgecolor=COLORS["coral"], lw=1.5))
 
     fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "14_feistel_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [14] Feistel oracle circuit")
+    print("  [14] Feistel oracle circuit (n=3)")
 
 
-# ── Figure 15: Slide Attack Oracle Circuit ───────────────────────
+# ── Figure 15: Slide Attack Oracle Circuit (n=3, gate-level) ─────
 def fig_slide_worked():
-    """Quantum circuit with slide attack oracle, annotated for non-experts."""
-    fig, ax = plt.subplots(figsize=(9, 3.8))
-    ax.set_xlim(0, 11)
-    ax.set_ylim(-0.6, 5.0)
+    """Quantum circuit: Slide attack oracle with n=3 individual wires,
+    showing Fk = XOR k -> P at gate level."""
+    fig, ax = plt.subplots(figsize=(13, 7))
+    ax.set_xlim(0, 14.5)
+    ax.set_ylim(-1.2, 9.0)
     ax.axis("off")
 
-    ax.text(5.5, 4.6,
-            "Iterated cipher:  E = Fk ∘ ··· ∘ Fk  (r rounds),  Fk(x) = P(x ⊕ k)",
-            fontsize=9.5, ha="center", color=COLORS["dark"], family="monospace",
+    ax.text(7.25, 8.5,
+            "Slide Attack:  Fk(x) = P(x ⊕ k),   f(x) = Fk(x) ⊕ P(x)",
+            fontsize=10.5, ha="center", color=COLORS["dark"], family="monospace",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white",
                       edgecolor=COLORS["sage"], linewidth=1))
 
-    yx, yy = 3.0, 1.0
-    blw = 2.5
-    gh = 0.35
+    iy = [6.4, 5.6, 4.8]
+    oy = [2.6, 1.8, 1.0]
+    x_start, x_end = 0.7, 14.0
+    gh = 0.28
 
-    ax.text(0.15, yx, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.15, yy, "|0⟩ⁿ", fontsize=11, ha="right", va="center",
-            family="serif", color=COLORS["dark"])
-    ax.text(0.05, yx + 0.4, "input", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
-    ax.text(0.05, yy + 0.4, "output", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
+    for y in iy + oy:
+        ax.plot([x_start, x_end], [y, y], color=COLORS["dark"], lw=0.8, zorder=1)
 
-    ax.plot([0.25, 10.3], [yx, yx], color=COLORS["dark"], lw=blw, zorder=1)
-    ax.plot([0.25, 10.3], [yy, yy], color=COLORS["dark"], lw=blw, zorder=1)
+    for i, y in enumerate(iy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
+    for i, y in enumerate(oy):
+        ax.text(0.5, y, f"|0⟩", fontsize=10, ha="right", va="center",
+                family="serif", color=COLORS["dark"])
+        ax.text(0.25, y, f"q{i+3}", fontsize=7.5, ha="right", va="center",
+                color=COLORS["sage"])
 
-    def draw_gate(cx, cy, label, w=0.55, ec=COLORS["navy"], fs=10,
-                  fc=COLORS["mint"], tc=COLORS["navy"]):
+    ax.annotate("", xy=(0.12, iy[-1] - 0.25), xytext=(0.12, iy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (iy[0] + iy[-1]) / 2, "input", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+    ax.annotate("", xy=(0.12, oy[-1] - 0.25), xytext=(0.12, oy[0] + 0.25),
+                arrowprops=dict(arrowstyle="-", lw=1.2, color=COLORS["sage"]))
+    ax.text(-0.05, (oy[0] + oy[-1]) / 2, "output", fontsize=7.5,
+            ha="center", va="center", color=COLORS["sage"], style="italic",
+            rotation=90)
+
+    def sq_gate(cx, cy, label, ec=COLORS["navy"], fc=COLORS["mint"],
+                tc=COLORS["navy"], fs=10, w=0.44):
         r = plt.Rectangle((cx - w / 2, cy - gh), w, 2 * gh,
+                           facecolor=fc, edgecolor=ec, lw=1.3, zorder=3)
+        ax.add_patch(r)
+        ax.text(cx, cy, label, fontsize=fs, ha="center", va="center",
+                color=tc, family="serif", zorder=4)
+
+    def block_gate(cx, y_top, y_bot, label, ec=COLORS["navy"],
+                   fc=COLORS["mint"], tc=COLORS["navy"], fs=10, w=0.6,
+                   label2=None, fs2=7):
+        pad = 0.15
+        h = (y_top - y_bot) + 2 * gh + 2 * pad
+        r = plt.Rectangle((cx - w / 2, y_bot - gh - pad), w, h,
                            facecolor=fc, edgecolor=ec, lw=1.5, zorder=3)
         ax.add_patch(r)
-        ax.text(cx, cy, label, fontsize=fs,
-                ha="center", va="center", color=tc, family="serif")
+        mid = (y_top + y_bot) / 2
+        ax.text(cx, mid + (0.12 if label2 else 0), label, fontsize=fs,
+                ha="center", va="center", color=tc, family="serif", zorder=4)
+        if label2:
+            ax.text(cx, mid - 0.25, label2, fontsize=fs2, ha="center",
+                    va="center", color=COLORS["sage"], zorder=4)
 
-    def draw_cnot(cx):
-        ax.plot([cx, cx], [yx - gh + 0.05, yy + 0.15],
-                color=COLORS["navy"], lw=1.3, zorder=2)
-        ax.plot(cx, yx, 'o', color=COLORS["navy"], ms=5, zorder=4)
-        c = plt.Circle((cx, yy), 0.13, fill=True, facecolor="white",
-                        edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    def cnot_pair(cx, idx):
+        yi, yo = iy[idx], oy[idx]
+        ax.plot([cx, cx], [yi, yo], color=COLORS["navy"], lw=1.0, zorder=2)
+        ax.plot(cx, yi, 'o', color=COLORS["navy"], ms=4, zorder=4)
+        c = plt.Circle((cx, yo), 0.12, fill=True, facecolor="white",
+                        edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(c)
-        ax.text(cx, yy, "⊕", fontsize=9, ha="center", va="center",
-                color=COLORS["navy"], zorder=5)
-        ax.text(cx + 0.18, (yx + yy) / 2, "copy", fontsize=7, ha="left",
-                color=COLORS["sage"], style="italic")
+        ax.text(cx, yo, "+", fontsize=8, ha="center", va="center",
+                color=COLORS["navy"], zorder=5, weight="bold")
 
-    def draw_meter(cx, cy):
-        bg = plt.Circle((cx, cy - 0.05), 0.22, fill=True, facecolor="white",
-                         edgecolor="white", lw=0, zorder=3)
-        ax.add_patch(bg)
-        arc = plt.Circle((cx, cy - 0.05), 0.2, fill=False,
-                          edgecolor=COLORS["navy"], lw=1.5, zorder=4)
+    def meter(cx, cy):
+        arc = plt.Circle((cx, cy - 0.04), 0.18, fill=False,
+                          edgecolor=COLORS["navy"], lw=1.3, zorder=4)
         ax.add_patch(arc)
-        ax.plot([cx, cx + 0.1], [cy - 0.05, cy + 0.2],
-                color=COLORS["navy"], lw=1.5, zorder=5)
-        ax.plot([cx - 0.2, cx + 0.2], [cy - 0.25, cy - 0.25],
-                color=COLORS["navy"], lw=1.5, zorder=5)
+        ax.plot([cx, cx + 0.08], [cy - 0.04, cy + 0.18],
+                color=COLORS["navy"], lw=1.3, zorder=5)
+        ax.plot([cx - 0.18, cx + 0.18], [cy - 0.22, cy - 0.22],
+                color=COLORS["navy"], lw=1.3, zorder=5)
 
-    draw_gate(0.75, yx, "H⊗ⁿ", fs=9)
-    ax.text(0.75, yx + gh + 0.15, "superpose", fontsize=7, ha="center",
+    # Hadamard
+    xH1 = 1.3
+    for y in iy:
+        sq_gate(xH1, y, "H")
+    ax.text(xH1, iy[0] + 0.55, "superpose", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    ox1, ox2 = 1.5, 7.5
-    oracle_rect = plt.Rectangle((ox1, yy - 0.35), ox2 - ox1, yx - yy + 0.7,
+    # Oracle box
+    ox1, ox2 = 2.0, 11.6
+    oracle_rect = plt.Rectangle((ox1, oy[-1] - 0.55), ox2 - ox1,
+                                 iy[0] - oy[-1] + 1.1,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  lw=1.5, linestyle=(0, (5, 3)),
-                                 zorder=0, alpha=0.25)
+                                 zorder=0, alpha=0.2)
     ax.add_patch(oracle_rect)
 
-    draw_gate(2.5, yx, "Fk", w=0.6, ec=COLORS["coral"],
-              fc="#FDE8E9", tc=COLORS["coral"])
-    ax.text(2.5, yx + gh + 0.15, "1 round", fontsize=7, ha="center",
+    # --- ARM 1: Compute Fk(x) = P(x ⊕ k) ---
+    # XOR k = 101 → X on q0, q2
+    xk = 2.7
+    sq_gate(xk, iy[0], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    sq_gate(xk, iy[2], "X", fc="#FDE8E9", ec=COLORS["coral"], tc=COLORS["coral"])
+    ax.text(xk, iy[0] + 0.55, "⊕k", fontsize=8, ha="center",
+            color=COLORS["coral"], weight="bold")
+    ax.text(xk, iy[2] - 0.55, "k = 101", fontsize=7, ha="center",
             color=COLORS["coral"], style="italic")
-    draw_cnot(3.15)
-    draw_gate(3.95, yx, "undo Fk", w=0.85, fs=8, ec=COLORS["coral"],
-              fc="#FDE8E9", tc=COLORS["coral"])
-    ax.text(3.15, yy - 0.28, "⊕ Fk(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
 
-    draw_gate(5.1, yx, "P", w=0.5, ec=COLORS["teal"])
-    ax.text(5.1, yx + gh + 0.15, "public", fontsize=7, ha="center",
+    # Permutation P (part of Fk)
+    xP1 = 3.6
+    block_gate(xP1, iy[0], iy[2], "P", ec=COLORS["teal"], w=0.55, fs=11)
+
+    # Bracket: "= Fk(x)"
+    bx1, bx2 = xk - 0.35, xP1 + 0.4
+    by = iy[0] + 0.95
+    ax.annotate("", xy=(bx1, by), xytext=(bx2, by),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["coral"]))
+    ax.plot([bx1, bx1], [by, by - 0.1], color=COLORS["coral"], lw=1)
+    ax.plot([bx2, bx2], [by, by - 0.1], color=COLORS["coral"], lw=1)
+    ax.text((bx1 + bx2) / 2, by + 0.15, "compute Fk(x) = P(x⊕k)", fontsize=8,
+            ha="center", color=COLORS["coral"], weight="bold")
+
+    # CNOT copy Fk(x) to output
+    xC1 = 4.5
+    for i in range(3):
+        cnot_pair(xC1 + i * 0.35, i)
+    ax.text(xC1 + 0.35, oy[0] + 0.55, "copy Fk(x)\nto output",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
+
+    # Undo Fk
+    xU1 = 5.7
+    block_gate(xU1, iy[0], iy[2], "undo\nFk", ec=COLORS["coral"],
+               fc="#FDE8E9", tc=COLORS["coral"], fs=9, w=0.7)
+
+    # --- ARM 2: Compute P(x) (public, no key) ---
+    xP2 = 7.0
+    block_gate(xP2, iy[0], iy[2], "P", ec=COLORS["teal"], w=0.55, fs=11,
+               label2="public")
+    ax.text(xP2, iy[0] + 0.55, "no key", fontsize=7, ha="center",
+            color=COLORS["teal"], style="italic")
+
+    # CNOT copy P(x) to output (XOR → output = Fk(x) ⊕ P(x))
+    xC2 = 8.0
+    for i in range(3):
+        cnot_pair(xC2 + i * 0.35, i)
+    ax.text(xC2 + 0.35, oy[0] + 0.55, "⊕ P(x)\nto output",
+            fontsize=7, ha="center", color=COLORS["sage"], style="italic",
+            linespacing=1.1)
+
+    # Undo P
+    xU2 = 9.2
+    block_gate(xU2, iy[0], iy[2], "undo\nP", ec=COLORS["teal"],
+               fc=COLORS["mint"], fs=9, w=0.7)
+
+    # Bracket arm 2
+    bx1b, bx2b = xP2 - 0.4, xU2 + 0.45
+    by2 = iy[0] + 0.95
+    ax.annotate("", xy=(bx1b, by2), xytext=(bx2b, by2),
+                arrowprops=dict(arrowstyle="-", lw=1, color=COLORS["teal"]))
+    ax.plot([bx1b, bx1b], [by2, by2 - 0.1], color=COLORS["teal"], lw=1)
+    ax.plot([bx2b, bx2b], [by2, by2 - 0.1], color=COLORS["teal"], lw=1)
+    ax.text((bx1b + bx2b) / 2, by2 + 0.15, "⊕ P(x) arm (public)", fontsize=8,
+            ha="center", color=COLORS["teal"], weight="bold")
+
+    # Hadamard (interfere)
+    xH2 = 12.1
+    for y in iy:
+        sq_gate(xH2, y, "H")
+    ax.text(xH2, iy[0] + 0.55, "interfere", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
-    draw_cnot(5.6)
-    draw_gate(6.3, yx, "undo P", w=0.8, fs=8, ec=COLORS["teal"])
-    ax.text(5.6, yy - 0.28, "⊕ P(x)", fontsize=8, ha="center",
-            color=COLORS["coral"])
 
-    draw_gate(8.1, yx, "H⊗ⁿ", fs=9)
-    ax.text(8.1, yx + gh + 0.15, "interfere", fontsize=7, ha="center",
+    # Measure
+    xM = 12.9
+    for y in iy:
+        meter(xM, y)
+    ax.text(xM, iy[0] + 0.55, "measure", fontsize=7.5, ha="center",
             color=COLORS["sage"], style="italic")
 
-    draw_meter(9.1, yx)
-    ax.text(9.1, yx + gh + 0.15, "measure", fontsize=7, ha="center",
-            color=COLORS["sage"], style="italic")
+    ax.text(13.7, (iy[0] + iy[2]) / 2, "y", fontsize=13, ha="center",
+            va="center", color=COLORS["navy"], family="serif")
+    ax.text(13.7, (iy[0] + iy[2]) / 2 - 0.5, "(y·s = 0)", fontsize=8,
+            ha="center", color=COLORS["sage"])
 
-    ax.text(10.0, yx, "y", fontsize=12, ha="center", va="center",
-            color=COLORS["navy"], family="serif")
-    ax.text(10.0, yx - 0.35, "(y·s = 0)", fontsize=8, ha="center",
-            color=COLORS["sage"])
-
-    ax.text(4.5, yy - 0.55, "Oracle Uf :  f(x) = Fk(x) ⊕ P(x)",
-            fontsize=8.5, ha="center", color=COLORS["coral"], style="italic")
-    ax.text(5.5, -0.35,
-            "Period  s = k  →  direct key recovery in O(n) queries, any r",
-            fontsize=9.5, ha="center", color=COLORS["coral"],
+    # Bottom annotations
+    ax.text(6.8, oy[-1] - 0.7,
+            "Oracle Uf :  output = Fk(x) ⊕ P(x)  =  f(x)",
+            fontsize=9, ha="center", color=COLORS["coral"], style="italic")
+    ax.text(7.25, -0.9,
+            "Period  s = k  →  direct key recovery in O(n) queries, any # rounds",
+            fontsize=10, ha="center", color=COLORS["coral"],
             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
                       edgecolor=COLORS["coral"], lw=1.5))
 
     fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "15_slide_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [15] Slide oracle circuit")
+    print("  [15] Slide oracle circuit (n=3, gate-level)")
 
 
 # ── Figure 16: PRINCE Timing — Quantum vs Classical ────────────────
