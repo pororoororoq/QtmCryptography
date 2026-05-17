@@ -1,5 +1,5 @@
 # Poster Text: Breaking Encryption with Quantum Computers
-### Jake Kim, Caroline Li, Jennifer Zhang — Quantum and Optics Lab, TJHSST
+### Jake Kim — Quantum and Optics Lab, TJHSST
 
 ---
 
