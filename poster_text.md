@@ -138,6 +138,28 @@ The experiments above used 3-8 bit keys. Real ciphers use 64-128+ bit keys. We t
 
 ---
 
+## DEFENSES AND FUTURE DIRECTIONS
+
+Our attacks exploit specific algebraic structure in cipher designs. Defenses exist, and they fall into two categories.
+
+**Symmetric crypto (what we attacked):**
+
+- Simon's algorithm requires the cipher to produce a function with a hidden period. Not all ciphers do this. AES in standard modes does not have the Even-Mansour or slide structure our attacks require
+- The vulnerability is design-specific: Even-Mansour, Feistel with identical round keys, and iterated ciphers with a single repeated round function all create exploitable periods. Designers who avoid these patterns eliminate the attack surface
+- Against Grover's algorithm (generic key search), doubling the key length restores security. AES-256 maintains 128-bit security even against a quantum adversary running Grover
+- The Q2 threat model (quantum superposition queries to the cipher) is required for our attacks. Whether a real-world system allows superposition queries depends on the deployment: hardware tokens may expose this interface, while network protocols likely do not
+
+**Public-key crypto (RSA, Diffie-Hellman, elliptic curves):**
+
+- NIST finalized three post-quantum standards in August 2024 (FIPS 203, 204, 205), replacing the algorithms Shor's algorithm breaks
+- **Lattice-based (ML-KEM, ML-DSA):** Security relies on finding the closest point in a high-dimensional lattice with noise added. No known quantum algorithm solves this efficiently. These handle key exchange and digital signatures
+- **Hash-based signatures (SLH-DSA):** Security depends only on hash functions being one-way. No algebraic structure for a quantum algorithm to exploit. Signatures are large but the security assumption is minimal
+- **Code-based (Classic McEliece):** Decoding random error-correcting codes has resisted attack since 1978, including quantum approaches. Public keys are hundreds of kilobytes, which limits some applications
+
+**The open question:** Our work shows that hidden algebraic structure in symmetric ciphers creates quantum vulnerabilities the designers did not anticipate. PRINCE was published in 2012 and analyzed for years before the Grover-meet-Simon attack reduced its security from 127 to 37 bits. Future cipher designs need formal analysis against quantum period-finding, not only against classical cryptanalysis.
+
+---
+
 ## ACKNOWLEDGEMENTS
 
 - Kuwakado & Morii (2010, 2012): first Simon's algorithm attacks on Even-Mansour and Feistel
