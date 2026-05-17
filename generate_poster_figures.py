@@ -1047,6 +1047,78 @@ def fig_slide_worked():
     print("  [15] Slide attack diagram")
 
 
+# ── Figure 16: PRINCE Timing — Quantum vs Classical ────────────────
+def fig_prince_timing():
+    with open(RESULTS / "prince_timing.json") as f:
+        data = json.load(f)
+
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+
+    ns_q, ts_q = [], []
+    ns_c, ts_c = [], []
+
+    for n_str in sorted(data.keys(), key=int):
+        entry = data[n_str]
+        n = int(n_str)
+
+        if entry.get("quantum_time_s") is not None:
+            ns_q.append(n)
+            ts_q.append(entry["quantum_time_s"])
+
+        if entry.get("classical_time_s") is not None:
+            ns_c.append(n)
+            ts_c.append(entry["classical_time_s"])
+
+    # Plot quantum
+    ax.semilogy(ns_q, ts_q, "-", color=COLORS["navy"],
+                linewidth=2.5, label="Simon's algorithm (quantum)", zorder=3)
+
+    # Plot classical
+    ax.semilogy(ns_c, ts_c, "-", color=COLORS["coral"],
+                linewidth=2.5, label="Brute-force (classical)", zorder=3)
+
+    # Extrapolate classical (doubles per bit)
+    if len(ns_c) >= 2 and ts_c[-1] > 0:
+        last_n = ns_c[-1]
+        last_t = ts_c[-1]
+        extrap_ns = list(range(last_n + 1, 128))
+        extrap_ts = [last_t * (2 ** (n - last_n)) for n in extrap_ns]
+        ax.semilogy(extrap_ns, extrap_ts, "--", color=COLORS["coral"],
+                    linewidth=1.5, alpha=0.5, zorder=2)
+
+    # Annotate quantum result at n=127
+    ax.annotate(f"127-bit key cracked\nin {ts_q[-1]*1000:.0f} ms",
+                xy=(127, ts_q[-1]), xytext=(85, 1e-5),
+                fontsize=11, color=COLORS["navy"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["navy"],
+                                linewidth=1.5))
+
+    # Annotate classical wall
+    ax.annotate(f"Classical gives up\nat n={ns_c[-1]} ({ts_c[-1]:.0f}s)",
+                xy=(ns_c[-1], ts_c[-1]), xytext=(50, 1e6),
+                fontsize=10, color=COLORS["coral"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["coral"],
+                                linewidth=1.5))
+
+    style_ax(ax, "Cracking a PRINCE Cipher: Quantum vs Classical",
+             "Key Size n (bits)", "Time to Recover Key (seconds, log scale)")
+    ax.set_xlim(0, 130)
+    ax.set_ylim(1e-6, 1e35)
+    ax.legend(fontsize=11, loc="upper left")
+    ax.grid(axis="y", alpha=0.2)
+
+    # Age of universe reference line
+    ax.axhline(y=4.3e17, color=COLORS["sage"], linestyle="--",
+               linewidth=0.8, alpha=0.5)
+    ax.text(65, 1.5e18, "← age of the universe (13.8 billion years)",
+            fontsize=9, color=COLORS["sage"], ha="center")
+
+    fig.tight_layout()
+    fig.savefig(OUT / "16_prince_timing.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print("  [16] PRINCE quantum vs classical timing")
+
+
 # ── Main ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("Generating poster figures...")
@@ -1066,6 +1138,7 @@ if __name__ == "__main__":
     fig_even_mansour_worked()
     fig_feistel_worked()
     fig_slide_worked()
+    fig_prince_timing()
     print()
     print(f"Done! {len(list(OUT.glob('*.png')))} figures saved to {OUT}/")
     print()
