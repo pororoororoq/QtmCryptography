@@ -140,23 +140,39 @@ The experiments above used 3-8 bit keys. Real ciphers use 64-128+ bit keys. We t
 
 ## DEFENSES AND FUTURE DIRECTIONS
 
-Our attacks exploit specific algebraic structure in cipher designs. Defenses exist, and they fall into two categories.
+Post-quantum replacements exist. Whether they are sufficient is an open and active question.
 
-**Symmetric crypto (what we attacked):**
+**The post-quantum standards:**
 
-- Simon's algorithm requires the cipher to produce a function with a hidden period. Not all ciphers do this. AES in standard modes does not have the Even-Mansour or slide structure our attacks require
-- The vulnerability is design-specific: Even-Mansour, Feistel with identical round keys, and iterated ciphers with a single repeated round function all create exploitable periods. Designers who avoid these patterns eliminate the attack surface
-- Against Grover's algorithm (generic key search), doubling the key length restores security. AES-256 maintains 128-bit security even against a quantum adversary running Grover
-- The Q2 threat model (quantum superposition queries to the cipher) is required for our attacks. Whether a real-world system allows superposition queries depends on the deployment: hardware tokens may expose this interface, while network protocols likely do not
-
-**Public-key crypto (RSA, Diffie-Hellman, elliptic curves):**
-
-- NIST finalized three post-quantum standards in August 2024 (FIPS 203, 204, 205), replacing the algorithms Shor's algorithm breaks
+- NIST finalized three post-quantum standards in August 2024 (FIPS 203, 204, 205), replacing the public-key algorithms that Shor's algorithm breaks
 - **Lattice-based (ML-KEM, ML-DSA):** Security relies on finding the closest point in a high-dimensional lattice with noise added. No known quantum algorithm solves this efficiently. These handle key exchange and digital signatures
-- **Hash-based signatures (SLH-DSA):** Security depends only on hash functions being one-way. No algebraic structure for a quantum algorithm to exploit. Signatures are large but the security assumption is minimal
-- **Code-based (Classic McEliece):** Decoding random error-correcting codes has resisted attack since 1978, including quantum approaches. Public keys are hundreds of kilobytes, which limits some applications
+- **Hash-based signatures (SLH-DSA):** Security depends on hash functions being one-way. Signatures are large but the security assumption is minimal
+- **Code-based (Classic McEliece):** Decoding random error-correcting codes has resisted attack since 1978, including quantum approaches. Public keys are hundreds of kilobytes
 
-**The open question:** Our work shows that hidden algebraic structure in symmetric ciphers creates quantum vulnerabilities the designers did not anticipate. PRINCE was published in 2012 and analyzed for years before the Grover-meet-Simon attack reduced its security from 127 to 37 bits. Future cipher designs need formal analysis against quantum period-finding, not only against classical cryptanalysis.
+**The post-quantum standards carry their own risks:**
+
+- SIKE, a NIST post-quantum finalist based on elliptic curve isogenies, was broken by a classical attack in 2022 after years of expert review. It passed multiple rounds of evaluation before researchers discovered a hidden mathematical structure that collapsed its security. The scheme went from "quantum-safe" to "broken on a laptop in one hour"
+- The lattice problems underlying ML-KEM and ML-DSA have been studied for about 20 years. RSA was studied for 45 years before practical attacks matured. The lattice attack surface is not yet fully mapped, and structured lattice variants (Ring-LWE, Module-LWE) introduce algebraic properties that could harbor undiscovered weaknesses
+- Side-channel attacks on lattice implementations have already been demonstrated. Even if the math is sound, the code running it may leak the key through timing, power consumption, or electromagnetic emissions
+
+**Why this research matters:**
+
+Our project demonstrates a specific, repeating pattern in cryptographic history: schemes that appear secure under known attacks turn out to contain hidden structure that enables new attacks.
+
+- PRINCE was published in 2012, passed years of peer review, and was deployed in production hardware. The Grover-meet-Simon attack, discovered in 2017, reduced its security from 127 bits to 37 bits. Nobody anticipated this during the design phase
+- SIKE followed the same trajectory: proposed, vetted by the international community, selected as a NIST finalist, then broken when researchers found structure the designers did not know was there
+- The Even-Mansour cipher was proven optimally secure against classical attacks. Our Attack 1 breaks it in O(n) quantum queries. The classical security proof provided no protection against a quantum adversary
+
+The lesson is not that any specific cipher is broken. The lesson is that hidden algebraic structure is difficult to detect and has collapsed the security of multiple schemes that experts believed were safe. Every new cryptographic standard, including the post-quantum ones, faces this same risk.
+
+**For symmetric crypto specifically:**
+
+- Simon's algorithm requires the cipher to produce a function with a hidden period. AES in standard modes does not have the Even-Mansour or slide structure our attacks require
+- The vulnerability is design-specific: Even-Mansour, Feistel with identical round keys, and iterated ciphers with a single repeated round function all create exploitable periods
+- Against Grover's algorithm (generic key search), doubling the key length restores security. AES-256 maintains 128-bit security against Grover
+- Our attacks require the Q2 threat model (quantum superposition queries to the cipher). Whether a real-world deployment allows this depends on the system: hardware tokens may expose this interface, while network protocols may not
+
+**The bottom line:** Post-quantum cryptography is a work in progress, not a finished solution. Our research shows what happens when hidden structure goes undetected, and every generation of cryptographic standards has faced this problem. Ongoing quantum cryptanalysis, including the kind of period-finding analysis in this project, is how the community finds these weaknesses before adversaries do.
 
 ---
 
