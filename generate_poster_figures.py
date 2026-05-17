@@ -696,355 +696,287 @@ def fig_simons_worked_example():
     print("  [12] Simon's worked example")
 
 
-# ── Figure 13: Even-Mansour Attack Diagram ─────────────────────────
+# ── Figure 13: Even-Mansour Oracle Construction ──────────────────
 def fig_even_mansour_worked():
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7),
-                                     gridspec_kw={"height_ratios": [1, 1.2]})
+    """Oracle-focused: how Simon's oracle is built from Even-Mansour."""
+    fig, ax = plt.subplots(figsize=(7.5, 3))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
 
-    # Top panel: cipher structure
-    ax1.set_xlim(0, 10)
-    ax1.set_ylim(0, 4)
-    ax1.axis("off")
-    ax1.set_title("Even-Mansour Cipher Structure", fontsize=14,
-                   color=COLORS["dark"], pad=10)
+    # Cipher equation
+    ax.text(5, 3.7, "Cipher:  E(x) = P(x ⊕ k₁) ⊕ k₂",
+            fontsize=11.5, ha="center", color=COLORS["dark"], family="monospace",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor=COLORS["sage"], linewidth=1))
 
-    # Input
-    ax1.text(0.5, 2, "x", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"], family="serif",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
-                       edgecolor=COLORS["navy"], linewidth=1.5))
+    y_top, y_bot, y_mid = 2.7, 1.3, 2.0
+    bw, bh = 1.3, 0.8
 
-    # XOR with k1
-    ax1.annotate("", xy=(1.8, 2), xytext=(1.0, 2),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
-    circle1 = plt.Circle((2.2, 2), 0.3, fill=False, edgecolor=COLORS["navy"],
-                          linewidth=2, zorder=3)
-    ax1.add_patch(circle1)
-    ax1.text(2.2, 2, "⊕", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"])
-    ax1.annotate("", xy=(2.2, 2.7), xytext=(2.2, 3.3),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["coral"], linewidth=1.5))
-    ax1.text(2.2, 3.6, "k₁", fontsize=14, ha="center", va="center",
-             color=COLORS["coral"],
-             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
-                       edgecolor=COLORS["coral"], linewidth=1.5))
+    # Input x
+    ax.text(0.5, y_mid, "x", fontsize=14, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-    # Permutation P
-    ax1.annotate("", xy=(3.5, 2), xytext=(2.6, 2),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
-    perm_rect = plt.Rectangle((3.5, 1.3), 1.8, 1.4, facecolor=COLORS["mint"],
-                               edgecolor=COLORS["teal"], linewidth=2, zorder=2)
-    ax1.add_patch(perm_rect)
-    ax1.text(4.4, 2, "P", fontsize=18, ha="center", va="center",
-             color=COLORS["navy"], family="serif")
-    ax1.text(4.4, 1.0, "(public permutation)", fontsize=8, ha="center",
-             color=COLORS["sage"])
+    # Fork
+    ax.plot([0.85, 1.4], [y_mid, y_top], color=COLORS["dark"], lw=1.3)
+    ax.plot([0.85, 1.4], [y_mid, y_bot], color=COLORS["dark"], lw=1.3)
 
-    # XOR with k2
-    ax1.annotate("", xy=(6.0, 2), xytext=(5.4, 2),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
-    circle2 = plt.Circle((6.4, 2), 0.3, fill=False, edgecolor=COLORS["navy"],
-                          linewidth=2, zorder=3)
-    ax1.add_patch(circle2)
-    ax1.text(6.4, 2, "⊕", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"])
-    ax1.annotate("", xy=(6.4, 2.7), xytext=(6.4, 3.3),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["coral"], linewidth=1.5))
-    ax1.text(6.4, 3.6, "k₂", fontsize=14, ha="center", va="center",
-             color=COLORS["coral"],
-             bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
-                       edgecolor=COLORS["coral"], linewidth=1.5))
+    # Top path: E (cipher, uses secret key)
+    e_rect = plt.Rectangle((1.5, y_top - bh / 2), bw, bh,
+                            facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                            linewidth=1.5, zorder=2)
+    ax.add_patch(e_rect)
+    ax.text(1.5 + bw / 2, y_top, "E", fontsize=13, ha="center", va="center",
+            color=COLORS["navy"], family="serif")
+    ax.text(1.5 + bw / 2, y_top + bh / 2 + 0.1, "cipher",
+            fontsize=7, ha="center", color=COLORS["sage"])
 
-    # Output
-    ax1.annotate("", xy=(7.5, 2), xytext=(6.8, 2),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"], linewidth=1.5))
-    ax1.text(8.0, 2, "E(x)", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"], family="serif",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
-                       edgecolor=COLORS["navy"], linewidth=1.5))
+    # Bottom path: P (public permutation)
+    p_rect = plt.Rectangle((1.5, y_bot - bh / 2), bw, bh,
+                            facecolor=COLORS["mint"], edgecolor=COLORS["teal"],
+                            linewidth=1.5, zorder=2)
+    ax.add_patch(p_rect)
+    ax.text(1.5 + bw / 2, y_bot, "P", fontsize=13, ha="center", va="center",
+            color=COLORS["navy"], family="serif")
+    ax.text(1.5 + bw / 2, y_bot - bh / 2 - 0.15, "public",
+            fontsize=7, ha="center", color=COLORS["sage"])
 
-    # Formula
-    ax1.text(5, 0.3, "E(x) = P(x ⊕ k₁) ⊕ k₂", fontsize=13,
-             ha="center", color=COLORS["dark"], family="serif",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                       edgecolor=COLORS["sage"], linewidth=1))
+    # Merge to XOR
+    xor_x = 3.7
+    ax.plot([1.5 + bw, xor_x - 0.22], [y_top, y_mid + 0.15],
+            color=COLORS["dark"], lw=1.3)
+    ax.plot([1.5 + bw, xor_x - 0.22], [y_bot, y_mid - 0.15],
+            color=COLORS["dark"], lw=1.3)
 
-    # Bottom panel: attack reduction
-    ax2.set_xlim(0, 10)
-    ax2.set_ylim(0, 5)
-    ax2.axis("off")
-    ax2.set_title("Simon's Attack Reduction", fontsize=14,
-                   color=COLORS["dark"], pad=10)
+    circle = plt.Circle((xor_x, y_mid), 0.22, fill=False,
+                         edgecolor=COLORS["navy"], linewidth=2, zorder=3)
+    ax.add_patch(circle)
+    ax.text(xor_x, y_mid, "⊕", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"])
 
-    # The reduction
-    steps = [
-        (0.5, 4.0, "Define:", "f(x) = E(x) ⊕ P(x)"),
-        (0.5, 3.0, "Expand:", "f(x) = P(x⊕k₁)⊕k₂ ⊕ P(x)"),
-        (0.5, 2.0, "Key insight:", "f(x⊕k₁) = P(x)⊕k₂ ⊕ P(x⊕k₁) = f(x)"),
-    ]
-    for x, y, label, formula in steps:
-        ax2.text(x, y, label, fontsize=11, ha="left", va="center",
-                 color=COLORS["sage"])
-        ax2.text(x + 1.8, y, formula, fontsize=12, ha="left", va="center",
-                 color=COLORS["navy"], family="monospace")
+    # f(x) output
+    ax.annotate("", xy=(4.5, y_mid), xytext=(xor_x + 0.22, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["dark"], lw=1.5))
+    ax.text(4.9, y_mid, "f(x)", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-    ax2.annotate("", xy=(5, 2.0 - 0.5), xytext=(5, 2.0 - 0.2),
-                 arrowprops=dict(arrowstyle="->,head_width=0.15",
-                                 color=COLORS["navy"], linewidth=1.5))
+    # Arrow to result
+    ax.annotate("", xy=(5.8, y_mid), xytext=(5.3, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["coral"], lw=1.5))
 
-    result_rect = plt.Rectangle((1.5, 0.3), 7, 1.0,
+    # Result box
+    rx = 5.85
+    result_rect = plt.Rectangle((rx, 0.4), 3.9, 3.2,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  linewidth=2, zorder=2)
-    ax2.add_patch(result_rect)
-    ax2.text(5, 0.8, "f(x) has period s = k₁  →  Simon's algorithm recovers k₁ in O(n) queries",
-             fontsize=11, ha="center", va="center", color=COLORS["coral"])
+    ax.add_patch(result_rect)
+    cx = rx + 1.95
+    ax.text(cx, 3.1, "f(x ⊕ k₁) = f(x)", fontsize=10.5, ha="center",
+            color=COLORS["coral"], family="monospace")
+    ax.text(cx, 2.35, "Period  s = k₁", fontsize=11.5, ha="center",
+            color=COLORS["coral"], weight="bold")
+    ax.text(cx, 1.55, "Simon's recovers k₁", fontsize=10, ha="center",
+            color=COLORS["coral"])
+    ax.text(cx, 0.95, "in O(n) queries", fontsize=10, ha="center",
+            color=COLORS["coral"])
 
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "13_even_mansour_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [13] Even-Mansour attack diagram")
+    print("  [13] Even-Mansour oracle diagram")
 
 
-# ── Figure 14: 3-Round Feistel Attack Diagram ──────────────────────
+# ── Figure 14: 3-Round Feistel Oracle Construction ──────────────────
 def fig_feistel_worked():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6),
-                                     gridspec_kw={"width_ratios": [1.1, 1]})
+    """Oracle-focused: how Simon's oracle is built from a 3-round Feistel."""
+    fig, ax = plt.subplots(figsize=(7.5, 3))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
 
-    # Left panel: Feistel network structure
-    ax1.set_xlim(0, 8)
-    ax1.set_ylim(-0.5, 9)
-    ax1.axis("off")
-    ax1.set_title("3-Round Feistel Network", fontsize=14,
-                   color=COLORS["dark"], pad=10)
+    # Cipher equation
+    ax.text(5, 3.7, "3-Round Feistel:  round function F(x) = S[x ⊕ k]",
+            fontsize=11, ha="center", color=COLORS["dark"], family="monospace",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor=COLORS["sage"], linewidth=1))
 
-    # Draw 3 rounds
-    for rnd in range(3):
-        y_top = 7.5 - rnd * 2.5
-        y_bot = y_top - 1.8
+    y_top, y_bot, y_mid = 2.7, 1.3, 2.0
+    bw, bh = 1.7, 0.8
 
-        # L and R wires
-        ax1.plot([1.5, 1.5], [y_top, y_bot], color=COLORS["dark"], linewidth=1.5)
-        ax1.plot([5.5, 5.5], [y_top, y_bot + 0.8], color=COLORS["dark"], linewidth=1.5)
-        ax1.plot([5.5, 5.5], [y_bot + 0.4, y_bot], color=COLORS["dark"], linewidth=1.5)
+    # Input x
+    ax.text(0.4, y_mid, "x", fontsize=14, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-        # Cross-over (swap)
-        ax1.plot([1.5, 5.5], [y_bot, y_bot - 0.15], color=COLORS["dark"],
-                 linewidth=1, linestyle="--", alpha=0.4)
-        ax1.plot([5.5, 1.5], [y_bot, y_bot - 0.15], color=COLORS["dark"],
-                 linewidth=1, linestyle="--", alpha=0.4)
+    # Fork
+    ax.plot([0.75, 1.2], [y_mid, y_top], color=COLORS["dark"], lw=1.3)
+    ax.plot([0.75, 1.2], [y_mid, y_bot], color=COLORS["dark"], lw=1.3)
 
-        # F box (round function)
-        f_rect = plt.Rectangle((3.8, y_top - 1.4), 1.2, 0.8,
-                                facecolor="#FDE8E9", edgecolor=COLORS["coral"],
-                                linewidth=1.5, zorder=3)
-        ax1.add_patch(f_rect)
-        ax1.text(4.4, y_top - 1.0, f"F", fontsize=13, ha="center", va="center",
-                 color=COLORS["coral"], family="serif")
+    # Top path: encrypt (x, 0), take left half
+    e0_rect = plt.Rectangle((1.3, y_top - bh / 2), bw, bh,
+                             facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                             linewidth=1.5, zorder=2)
+    ax.add_patch(e0_rect)
+    ax.text(1.3 + bw / 2, y_top, "E(x, 0)", fontsize=11, ha="center",
+            va="center", color=COLORS["navy"], family="monospace")
+    ax.text(1.3 + bw + 0.1, y_top, "→ L", fontsize=9, ha="left",
+            va="center", color=COLORS["sage"])
 
-        # Arrow from R into F
-        ax1.annotate("", xy=(3.8, y_top - 1.0), xytext=(5.5, y_top - 1.0),
-                     arrowprops=dict(arrowstyle="<-", color=COLORS["dark"],
-                                     linewidth=1))
+    # Bottom path: encrypt (x, 1), take left half
+    e1_rect = plt.Rectangle((1.3, y_bot - bh / 2), bw, bh,
+                             facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
+                             linewidth=1.5, zorder=2)
+    ax.add_patch(e1_rect)
+    ax.text(1.3 + bw / 2, y_bot, "E(x, 1)", fontsize=11, ha="center",
+            va="center", color=COLORS["navy"], family="monospace")
+    ax.text(1.3 + bw + 0.1, y_bot, "→ L", fontsize=9, ha="left",
+            va="center", color=COLORS["sage"])
 
-        # Arrow from F to XOR
-        ax1.annotate("", xy=(2.0, y_top - 1.0), xytext=(3.8, y_top - 1.0),
-                     arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
-                                     linewidth=1))
+    # Merge to XOR
+    xor_x = 4.2
+    ax.plot([1.3 + bw + 0.55, xor_x - 0.22], [y_top, y_mid + 0.15],
+            color=COLORS["dark"], lw=1.3)
+    ax.plot([1.3 + bw + 0.55, xor_x - 0.22], [y_bot, y_mid - 0.15],
+            color=COLORS["dark"], lw=1.3)
 
-        # XOR circle on L wire
-        circle = plt.Circle((1.5, y_top - 1.0), 0.2, fill=False,
-                             edgecolor=COLORS["navy"], linewidth=1.5, zorder=3)
-        ax1.add_patch(circle)
-        ax1.text(1.5, y_top - 1.0, "⊕", fontsize=11, ha="center", va="center",
-                 color=COLORS["navy"])
+    circle = plt.Circle((xor_x, y_mid), 0.22, fill=False,
+                         edgecolor=COLORS["navy"], linewidth=2, zorder=3)
+    ax.add_patch(circle)
+    ax.text(xor_x, y_mid, "⊕", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"])
 
-        # Round label
-        ax1.text(6.8, y_top - 0.9, f"Round {rnd+1}", fontsize=10,
-                 color=COLORS["sage"])
+    # f(x) output
+    ax.annotate("", xy=(5.0, y_mid), xytext=(xor_x + 0.22, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["dark"], lw=1.5))
+    ax.text(5.4, y_mid, "f(x)", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-    # Labels
-    ax1.text(1.5, 8.0, "L", fontsize=14, ha="center", color=COLORS["navy"])
-    ax1.text(5.5, 8.0, "R", fontsize=14, ha="center", color=COLORS["navy"])
-    ax1.text(1.5, -0.3, "L'", fontsize=14, ha="center", color=COLORS["navy"])
-    ax1.text(5.5, -0.3, "R'", fontsize=14, ha="center", color=COLORS["navy"])
-    ax1.text(4.0, 8.3, "F(x) = S[x ⊕ k]", fontsize=11, ha="center",
-             color=COLORS["coral"], family="monospace")
+    # Arrow to result
+    ax.annotate("", xy=(6.2, y_mid), xytext=(5.75, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["coral"], lw=1.5))
 
-    # Right panel: attack reduction
-    ax2.set_xlim(0, 6)
-    ax2.set_ylim(0, 9)
-    ax2.axis("off")
-    ax2.set_title("Simon's Attack on Feistel", fontsize=14,
-                   color=COLORS["dark"], pad=10)
-
-    steps = [
-        (0.3, 8.0, "Construct function:"),
-        (0.3, 7.2, "f(x) = E_L(x, 0) ⊕ E_L(x, 1)"),
-        (0.3, 6.2, "Encrypt (x, 0) and (x, 1),"),
-        (0.3, 5.7, "XOR the left halves"),
-        (0.3, 4.7, "After 3-round analysis:"),
-        (0.3, 3.9, "f(x) = S[x ⊕ a] ⊕ S[x ⊕ b]"),
-        (0.3, 3.2, "where a = S[k]⊕k, b = S[1⊕k]⊕k"),
-    ]
-
-    for x, y, text in steps:
-        if "Construct" in text or "Encrypt" in text or "After" in text:
-            ax2.text(x, y, text, fontsize=11, color=COLORS["sage"])
-        elif "f(x) = E_L" in text or "f(x) = S[" in text:
-            ax2.text(x, y, text, fontsize=12, color=COLORS["navy"],
-                     family="monospace")
-        elif "where" in text:
-            ax2.text(x, y, text, fontsize=10, color=COLORS["dark"],
-                     family="monospace")
-        else:
-            ax2.text(x, y, text, fontsize=10, color=COLORS["dark"])
-
-    ax2.annotate("", xy=(3, 2.5), xytext=(3, 2.9),
-                 arrowprops=dict(arrowstyle="->,head_width=0.15",
-                                 color=COLORS["navy"], linewidth=1.5))
-
-    ax2.text(3, 2.1, "Period: s = a ⊕ b = S[k] ⊕ S[1⊕k]",
-             fontsize=11, ha="center", color=COLORS["navy"], family="monospace")
-
-    result_rect = plt.Rectangle((0.3, 0.5), 5.4, 1.2,
+    # Result box
+    rx = 6.25
+    result_rect = plt.Rectangle((rx, 0.4), 3.5, 3.2,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  linewidth=2, zorder=2)
-    ax2.add_patch(result_rect)
-    ax2.text(3, 1.1, "Simon recovers s, then brute-force\nk from S[k] ⊕ S[1⊕k] = s",
-             fontsize=11, ha="center", va="center", color=COLORS["coral"])
+    ax.add_patch(result_rect)
+    cx = rx + 1.75
+    ax.text(cx, 3.1, "f has period s where", fontsize=9.5, ha="center",
+            color=COLORS["coral"])
+    ax.text(cx, 2.35, "s = S[k] ⊕ S[1⊕k]", fontsize=11, ha="center",
+            color=COLORS["coral"], weight="bold", family="monospace")
+    ax.text(cx, 1.55, "Simon's recovers s,", fontsize=10, ha="center",
+            color=COLORS["coral"])
+    ax.text(cx, 0.95, "brute-force k from s", fontsize=10, ha="center",
+            color=COLORS["coral"])
 
-    fig.suptitle("3-Round Feistel: Structure and Quantum Attack",
-                 fontsize=16, y=1.02, color=COLORS["dark"])
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "14_feistel_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [14] Feistel attack diagram")
+    print("  [14] Feistel oracle diagram")
 
 
-# ── Figure 15: Slide Attack Diagram ────────────────────────────────
+# ── Figure 15: Slide Attack Oracle Construction ────────────────────
 def fig_slide_worked():
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5),
-                                     gridspec_kw={"width_ratios": [1.2, 1]})
+    """Oracle-focused: how Simon's oracle is built from an iterated cipher."""
+    fig, ax = plt.subplots(figsize=(7.5, 3))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 4)
+    ax.axis("off")
 
-    # Left panel: iterated cipher rounds
-    ax1.set_xlim(0, 10)
-    ax1.set_ylim(0, 7)
-    ax1.axis("off")
-    ax1.set_title("Iterated Cipher: r Identical Rounds", fontsize=14,
-                   color=COLORS["dark"], pad=10)
+    # Cipher equation
+    ax.text(5, 3.7,
+            "Iterated cipher:  E = Fk ∘ ··· ∘ Fk  (r rounds),  Fk(x) = P(x ⊕ k)",
+            fontsize=10, ha="center", color=COLORS["dark"], family="monospace",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                      edgecolor=COLORS["sage"], linewidth=1))
 
-    # Draw chain of rounds
-    x_positions = [1, 3, 5, 7.5]
-    labels = ["Fk", "Fk", "Fk", "Fk"]
-    round_labels = ["Round 1", "Round 2", "Round 3", "Round r"]
+    y_top, y_bot, y_mid = 2.7, 1.3, 2.0
+    bw, bh = 1.3, 0.8
 
-    ax1.text(0.2, 4, "x", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"], family="serif",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
-                       edgecolor=COLORS["navy"], linewidth=1.5))
+    # Input x
+    ax.text(0.5, y_mid, "x", fontsize=14, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-    for i, (xp, lab, rlab) in enumerate(zip(x_positions, labels, round_labels)):
-        if i == 2:
-            ax1.text(xp + 0.5, 4, "···", fontsize=20, ha="center", va="center",
-                     color=COLORS["sage"])
-            continue
+    # Fork
+    ax.plot([0.85, 1.4], [y_mid, y_top], color=COLORS["dark"], lw=1.3)
+    ax.plot([0.85, 1.4], [y_mid, y_bot], color=COLORS["dark"], lw=1.3)
 
-        rect = plt.Rectangle((xp, 3.2), 1.5, 1.6,
-                               facecolor=COLORS["mint"], edgecolor=COLORS["navy"],
-                               linewidth=1.5, zorder=2)
-        ax1.add_patch(rect)
-        ax1.text(xp + 0.75, 4, lab, fontsize=14, ha="center", va="center",
-                 color=COLORS["navy"], family="serif")
-        ax1.text(xp + 0.75, 3.0, rlab, fontsize=9, ha="center",
-                 color=COLORS["sage"])
+    # Top path: Fk (one round, uses key — highlighted in coral)
+    fk_rect = plt.Rectangle((1.5, y_top - bh / 2), bw, bh,
+                             facecolor="#FDE8E9", edgecolor=COLORS["coral"],
+                             linewidth=1.5, zorder=2)
+    ax.add_patch(fk_rect)
+    ax.text(1.5 + bw / 2, y_top, "Fk", fontsize=13, ha="center", va="center",
+            color=COLORS["coral"], family="serif")
+    ax.text(1.5 + bw / 2, y_top + bh / 2 + 0.1, "1 round",
+            fontsize=7, ha="center", color=COLORS["coral"])
 
-        # Key input
-        ax1.annotate("", xy=(xp + 0.75, 4.8), xytext=(xp + 0.75, 5.5),
-                     arrowprops=dict(arrowstyle="->", color=COLORS["coral"],
-                                     linewidth=1))
-        if i == 0:
-            ax1.text(xp + 0.75, 5.8, "k", fontsize=13, ha="center",
-                     color=COLORS["coral"],
-                     bbox=dict(boxstyle="round,pad=0.2", facecolor="#FDE8E9",
-                               edgecolor=COLORS["coral"], linewidth=1))
+    # Bottom path: P (public permutation)
+    p_rect = plt.Rectangle((1.5, y_bot - bh / 2), bw, bh,
+                            facecolor=COLORS["mint"], edgecolor=COLORS["teal"],
+                            linewidth=1.5, zorder=2)
+    ax.add_patch(p_rect)
+    ax.text(1.5 + bw / 2, y_bot, "P", fontsize=13, ha="center", va="center",
+            color=COLORS["navy"], family="serif")
+    ax.text(1.5 + bw / 2, y_bot - bh / 2 - 0.15, "public",
+            fontsize=7, ha="center", color=COLORS["sage"])
 
-        # Arrows between rounds
-        if i == 0:
-            ax1.annotate("", xy=(xp, 4), xytext=(0.6, 4),
-                         arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
-                                         linewidth=1.5))
-        if i < 3:
-            ax1.annotate("", xy=(xp + 2.0 if i < 2 else xp + 2.5, 4),
-                         xytext=(xp + 1.5, 4),
-                         arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
-                                         linewidth=1.5))
+    # Merge to XOR
+    xor_x = 3.7
+    ax.plot([1.5 + bw, xor_x - 0.22], [y_top, y_mid + 0.15],
+            color=COLORS["dark"], lw=1.3)
+    ax.plot([1.5 + bw, xor_x - 0.22], [y_bot, y_mid - 0.15],
+            color=COLORS["dark"], lw=1.3)
 
-    # Same key for all rounds annotation
-    ax1.text(5, 6.3, "Same key k used in every round", fontsize=11,
-             ha="center", color=COLORS["coral"],
-             bbox=dict(boxstyle="round,pad=0.3", facecolor="#FDE8E9",
-                       edgecolor=COLORS["coral"], linewidth=1, alpha=0.8))
+    circle = plt.Circle((xor_x, y_mid), 0.22, fill=False,
+                         edgecolor=COLORS["navy"], linewidth=2, zorder=3)
+    ax.add_patch(circle)
+    ax.text(xor_x, y_mid, "⊕", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"])
 
-    ax1.text(9.5, 4, "E(x)", fontsize=16, ha="center", va="center",
-             color=COLORS["navy"], family="serif",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor=COLORS["mint"],
-                       edgecolor=COLORS["navy"], linewidth=1.5))
-    ax1.annotate("", xy=(9.0, 4), xytext=(8.5 + 0.5, 4),
-                 arrowprops=dict(arrowstyle="->", color=COLORS["dark"],
-                                 linewidth=1.5))
+    # f(x) output
+    ax.annotate("", xy=(4.5, y_mid), xytext=(xor_x + 0.22, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["dark"], lw=1.5))
+    ax.text(4.9, y_mid, "f(x)", fontsize=12, ha="center", va="center",
+            color=COLORS["navy"], family="serif",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=COLORS["mint"],
+                      edgecolor=COLORS["navy"], linewidth=1.5))
 
-    # Bottom: key insight
-    insight_rect = plt.Rectangle((0.5, 0.8), 9, 1.5,
-                                  facecolor=COLORS["mint"], edgecolor=COLORS["teal"],
-                                  linewidth=1.5, alpha=0.7, zorder=0)
-    ax1.add_patch(insight_rect)
-    ax1.text(5, 1.8, "Fk(x) = P(x ⊕ k)  where P is a public permutation",
-             fontsize=11, ha="center", color=COLORS["navy"], family="monospace")
-    ax1.text(5, 1.15, "Attack uses only ONE round — ignores all others!",
-             fontsize=11, ha="center", color=COLORS["coral"])
+    # Arrow to result
+    ax.annotate("", xy=(5.8, y_mid), xytext=(5.3, y_mid),
+                arrowprops=dict(arrowstyle="->", color=COLORS["coral"], lw=1.5))
 
-    # Right panel: attack
-    ax2.set_xlim(0, 6)
-    ax2.set_ylim(0, 7)
-    ax2.axis("off")
-    ax2.set_title("Quantum Slide Attack", fontsize=14,
-                   color=COLORS["dark"], pad=10)
-
-    steps = [
-        (0.3, 6.2, "Construct:", "f(x) = Fk(x) ⊕ P(x)"),
-        (0.3, 5.2, "Expand:", "f(x) = P(x⊕k) ⊕ P(x)"),
-        (0.3, 4.2, "Verify:", "f(x⊕k) = P(x) ⊕ P(x⊕k)"),
-        (0.3, 3.5, "", "         = f(x)  ✓"),
-    ]
-    for x, y, label, formula in steps:
-        if label:
-            ax2.text(x, y, label, fontsize=11, color=COLORS["sage"])
-        ax2.text(x + (1.8 if label else 0), y, formula, fontsize=12,
-                 color=COLORS["navy"], family="monospace")
-
-    ax2.annotate("", xy=(3, 2.5), xytext=(3, 3.0),
-                 arrowprops=dict(arrowstyle="->,head_width=0.15",
-                                 color=COLORS["navy"], linewidth=1.5))
-
-    result_rect = plt.Rectangle((0.3, 1.2), 5.4, 1.1,
+    # Result box
+    rx = 5.85
+    result_rect = plt.Rectangle((rx, 0.4), 3.9, 3.2,
                                  facecolor="#FDE8E9", edgecolor=COLORS["coral"],
                                  linewidth=2, zorder=2)
-    ax2.add_patch(result_rect)
-    ax2.text(3, 1.75, "Period s = k  →  direct key recovery!",
-             fontsize=12, ha="center", va="center", color=COLORS["coral"])
+    ax.add_patch(result_rect)
+    cx = rx + 1.95
+    ax.text(cx, 3.1, "f(x ⊕ k) = f(x)", fontsize=10.5, ha="center",
+            color=COLORS["coral"], family="monospace")
+    ax.text(cx, 2.35, "Period  s = k", fontsize=11.5, ha="center",
+            color=COLORS["coral"], weight="bold")
+    ax.text(cx, 1.55, "Direct key recovery!", fontsize=10, ha="center",
+            color=COLORS["coral"])
+    ax.text(cx, 0.95, "O(n) queries, any r", fontsize=10, ha="center",
+            color=COLORS["coral"])
 
-    # Complexity comparison
-    ax2.text(3, 0.5, "O(n) queries regardless of round count r",
-             fontsize=10, ha="center", color=COLORS["navy"],
-             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                       edgecolor=COLORS["navy"], linewidth=1, alpha=0.8))
-
-    fig.suptitle("Quantum Slide Attack: Round Count is Irrelevant",
-                 fontsize=16, y=1.02, color=COLORS["dark"])
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     fig.savefig(OUT / "15_slide_attack.png", dpi=300, bbox_inches="tight")
     plt.close(fig)
-    print("  [15] Slide attack diagram")
+    print("  [15] Slide oracle diagram")
 
 
 # ── Figure 16: PRINCE Timing — Quantum vs Classical ────────────────
