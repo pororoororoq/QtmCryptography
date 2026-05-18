@@ -43,13 +43,15 @@ def fig_noise_phase_transition():
 
     fig, ax = plt.subplots(figsize=(7, 5))
 
-    markers = ["o", "s", "D"]
-    colors = [COLORS["navy"], COLORS["teal"], COLORS["sage"]]
+    markers = ["o", "s", "D", "^", "v", "P"]
+    colors = [COLORS["navy"], COLORS["teal"], COLORS["sage"],
+              COLORS["coral"], "#7B68AE", COLORS["dark"]]
     for i, (n, rates) in enumerate(sorted(data.items(), key=lambda x: int(x[0]))):
         eps = [float(e) * 100 for e in sorted(rates.keys(), key=float)]
         success = [rates[e] * 100 for e in sorted(rates.keys(), key=float)]
-        ax.plot(eps, success, marker=markers[i], color=colors[i],
-                linewidth=2.5, markersize=8, label=f"n = {n} bits",
+        ax.plot(eps, success, marker=markers[i % len(markers)],
+                color=colors[i % len(colors)],
+                linewidth=2.5, markersize=7, label=f"n = {n} bits",
                 zorder=3)
 
     ax.axvspan(30, 42, alpha=0.15, color=COLORS["coral"], zorder=0)
@@ -61,9 +63,9 @@ def fig_noise_phase_transition():
 
     style_ax(ax, "Noise Resilience: Sharp Phase Transition",
              "Measurement Noise Rate (%)", "Key Recovery Success (%)")
-    ax.set_ylim(45, 102)
+    ax.set_ylim(15, 102)
     ax.set_xlim(-1, 42)
-    ax.legend(fontsize=12, loc="lower left")
+    ax.legend(fontsize=10, loc="lower left", ncol=2)
     ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%d%%'))
     ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d%%'))
 

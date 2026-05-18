@@ -191,7 +191,7 @@ def experiment_noise_phase_transition():
     print("EXPERIMENT 3: Noise Phase Transition")
     print("=" * 70)
 
-    configs = [(3, 50), (4, 50), (5, 20)]
+    configs = [(3, 50), (4, 50), (5, 30), (6, 20), (7, 10), (8, 5)]
     epsilons = [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]
     results = {}
 
@@ -207,7 +207,7 @@ def experiment_noise_phase_transition():
                 s_int = rng.integers(1, N)
                 secret = format(s_int, f"0{n}b")
                 oracle = build_oracle_from_secret(secret)
-                n_samples = max(60, int(10 * n / max(1 - 2 * eps, 0.1) ** 2))
+                n_samples = max(60, min(500, int(10 * n / max(1 - 2 * eps, 0.1) ** 2)))
                 result = run_noisy_simons_algorithm(
                     oracle, n, epsilon=eps,
                     n_samples=n_samples,
