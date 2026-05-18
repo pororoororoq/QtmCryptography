@@ -72,6 +72,8 @@ Many cipher designs create hidden periods by accident. We attacked three differe
 
 ## RESULTS
 
+**Why n = 3–8?** Every experiment below runs a complete quantum simulation: the Qiskit statevector backend tracks all 2^(2n) probability amplitudes exactly, faithfully reproducing the superposition, interference, and measurement statistics of a real quantum computer (Qiskit Contributors, 2024; Nielsen & Chuang, 2010). This is not a mathematical shortcut — it is a full emulation of the quantum state. The cost is exponential: an 8-bit key requires tracking 2^16 = 65,536 complex amplitudes. Beyond n ≈ 8, memory and runtime on a classical computer become prohibitive. The PRINCE scaling analysis in the next section uses lightweight mathematical modeling, not full state simulation, to project behavior at real-world key sizes.
+
 ### Does it work?
 
 **[Place Fig 6: Success Rates]**
