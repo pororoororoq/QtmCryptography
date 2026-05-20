@@ -6,26 +6,28 @@
 ## SLIDE 1: Title Slide
 **[Your name, title, TJHSST Quantum & Optics Lab logo]**
 
-"Hey everyone. So — quick poll. Raise your hand if you've sent an iMessage today. Opened Instagram. Tapped your credit card somewhere. Used school Wi-Fi."
+"Hey everyone. Quick question. Who here could go on Instagram right now, open up your group chat with your closest friends, and share your entire chat history with everyone in this room?"
 
-*[Wait for hands]*
+*[Wait. If someone raises their hand:]*
 
-"Cool. Every single one of those things was protected by encryption. Your messages, your DMs, your Venmo transactions — all scrambled by a secret key so nobody in the middle can read them."
+"Okay, who are you lying to."
 
-"My project is about breaking that."
+*[Laugh]*
 
-"Specifically, I built quantum algorithms that crack certain encryption schemes — not in billions of years, not in thousands of years — in about 128 steps. And I'm going to explain how, why that matters for you personally, and why the fix isn't as simple as people think."
+"Because I certainly can't. And I think most of you can't either. There's stuff in those chats that is between you and those people and nobody else. And the only reason it stays that way is encryption. Every message, every DM, every Snap — it's all scrambled by a secret key, and the security of your entire private life depends on one assumption: that nobody can figure out that key fast enough."
+
+"My project is about breaking that assumption. I built quantum algorithms that recover encryption keys — not in billions of years — in about 128 steps."
 
 ---
 
 ## SLIDE 2: Why Should You Care?
 **[Show: iMessage lock icon, Instagram DM screen, Venmo payment — all have a lock/encryption symbol]**
 
-"So every time you send a Snap, that message is encrypted. Your bank app, your passwords, your health data — all protected by keys that would take longer than the age of the universe to crack."
+"Now you might be thinking, okay, but quantum computers don't exist yet, so who cares. Here's why you should care right now."
 
-"But there's a thing called 'harvest now, decrypt later.' Intelligence agencies — including China's — are intercepting and *storing* encrypted internet traffic right now. They can't read it. But they're saving it, because the moment a quantum computer gets powerful enough, they can go back and decrypt everything they collected."
+"There's a thing called 'harvest now, decrypt later.' Intelligence agencies — including China's — are intercepting and *storing* encrypted internet traffic today. They can't read it. But they're saving it, because the moment a quantum computer gets powerful enough, they can go back and decrypt everything they collected."
 
-"This isn't speculative. The NSA acknowledges it. DHS acknowledges it. The Federal Reserve published a paper on it. The data you send today could be readable in 10-15 years."
+"The NSA acknowledges this is happening. DHS acknowledges it. The Federal Reserve published a paper on it. The messages you send today could be readable in 10-15 years. That group chat you wouldn't share with this room? Someone might already have a copy. They just can't open it yet."
 
 ---
 
