@@ -7,27 +7,27 @@ Quantum and Optics Lab, Thomas Jefferson High School for Science and Technology
 
 ## Abstract
 
-Symmetric-key ciphers are widely assumed to be safe from quantum attacks: Grover's algorithm offers only a quadratic speedup, neutralized by doubling the key length. This paper challenges that assumption. We present a complete, open-source implementation of Simon's algorithm applied to three structurally distinct block cipher designs — Even-Mansour, 3-round Feistel networks, and iterated slide ciphers — demonstrating that each falls to an exponential quantum speedup in O(n) queries. Our implementation includes quantum circuit construction, custom GF(2) linear algebra, error-tolerant recovery under realistic noise, and a Grover-meet-Simon hybrid attack on the FX construction used by PRINCE-64. Across 1,600+ experimental trials using Qiskit statevector simulation for key sizes n = 3 to 8, all attacks achieve 100% success at n >= 4, require an average of 1.1n queries (near the theoretical minimum of n - 1), and tolerate up to 30% measurement noise before performance degrades. We scale the analysis to real-world key sizes, showing that Simon's algorithm cracks a 127-bit PRINCE-like key in 21 milliseconds while classical brute force times out at n = 29. These results demonstrate that the vulnerability is structural — rooted in hidden algebraic periods that certain cipher designs create — and that classical security proofs provide no protection against quantum adversaries operating in the Q2 threat model.
+Symmetric-key ciphers are widely assumed to be safe from quantum attacks: Grover's algorithm offers only a quadratic speedup, neutralized by doubling the key length. This paper challenges that assumption. We present a complete, open-source implementation of Simon's algorithm applied to three structurally distinct block cipher designs (Even-Mansour, 3-round Feistel networks, and iterated slide ciphers), each of which falls to an exponential quantum speedup in O(n) queries. Our implementation includes quantum circuit construction, custom GF(2) linear algebra, error-tolerant recovery under realistic noise, and a Grover-meet-Simon hybrid attack on the FX construction used by PRINCE-64. Across 1,600+ experimental trials using Qiskit statevector simulation for key sizes n = 3 to 8, all attacks achieve 100% success at n >= 4, require an average of 1.1n queries (near the theoretical minimum of n - 1), and tolerate up to 30% measurement noise before performance degrades. We scale the analysis to real-world key sizes, showing that Simon's algorithm cracks a 127-bit PRINCE-like key in 21 milliseconds while classical brute force times out at n = 29. The vulnerability is structural, rooted in hidden algebraic periods that certain cipher designs create, and classical security proofs provide no protection against quantum adversaries operating in the Q2 threat model.
 
 ---
 
 ## 1. Introduction
 
-Encryption protects every text message, bank transaction, and credit card tap. The security of these systems depends on a single assumption: no computer can recover the secret key fast enough to matter. A 128-bit key has 2^128 possible values — a number so large that every computer on Earth working together could not try them all before the sun burns out.
+Encryption protects every text message, bank transaction, and credit card tap. The security of these systems rests on a single assumption: no computer can recover the secret key fast enough to matter. A 128-bit key has 2^128 possible values — a number so large that every computer on Earth working together could not try them all before the sun burns out.
 
-Quantum computing threatens this assumption through two well-known algorithms. Shor's algorithm (Shor, 1997) breaks public-key cryptography (RSA, Diffie-Hellman, elliptic curves) in polynomial time. NIST responded in August 2024 by finalizing three post-quantum replacement standards (FIPS 203, 204, 205). Grover's algorithm (Grover, 1996) halves the security level of symmetric ciphers through quantum brute-force search. The standard countermeasure is straightforward: double the key length, migrating from AES-128 to AES-256 (Bernstein, 2009).
+Quantum computing threatens this assumption through two well-known algorithms. Shor's algorithm (Shor, 1997) breaks public-key cryptography (RSA, Diffie-Hellman, elliptic curves) in polynomial time. NIST responded in August 2024 by finalizing three post-quantum replacement standards (FIPS 203, 204, 205). Grover's algorithm (Grover, 1996) halves the security level of symmetric ciphers through quantum brute-force search. The standard countermeasure is to double the key length, migrating from AES-128 to AES-256 (Bernstein, 2009).
 
-This paper concerns a third, less widely appreciated threat: Simon's algorithm (Simon, 1997). Unlike Grover's quadratic speedup, Simon's algorithm provides an *exponential* speedup — reducing key recovery from O(2^{n/2}) classical queries to O(n) quantum queries — but only against ciphers whose mathematical structure contains a hidden period. A 128-bit key that requires 10^19 Grover queries requires approximately 128 Simon queries. Doubling the key length, the standard defense against Grover, has no meaningful effect: Simon's algorithm on a 256-bit key requires approximately 256 queries.
+This paper concerns a third, less widely appreciated threat: Simon's algorithm (Simon, 1997). Unlike Grover's quadratic speedup, Simon's algorithm provides an *exponential* speedup, reducing key recovery from O(2^{n/2}) classical queries to O(n) quantum queries, but only against ciphers whose mathematical structure contains a hidden period. A 128-bit key that requires 10^19 Grover queries requires approximately 128 Simon queries. Doubling the key length, the standard defense against Grover, has no meaningful effect: Simon's algorithm on a 256-bit key requires approximately 256 queries.
 
 Kuwakado and Morii (2010, 2012) first showed that Simon's algorithm breaks the Even-Mansour cipher and 3-round Feistel networks. Kaplan et al. (2016) extended this at CRYPTO 2016, demonstrating that Simon's algorithm breaks a wide range of symmetric constructions in the Q2 threat model, including CBC-MAC, PMAC, GMAC, GCM, and OCB. Leander and May (2017) combined Simon's with Grover's algorithm to attack the FX construction, reducing the security of PRINCE-64 from 127 bits to 37 bits.
 
-Despite this theoretical work, the literature has lacked complete, end-to-end implementations. Prior work was primarily mathematical: proofs that the attacks work in principle, without executable quantum circuits or empirical validation across multiple cipher designs. No single framework has compared how Simon's algorithm performs across Even-Mansour, Feistel, and slide settings with consistent methodology. Bonnetain and Jaques (2022) noted this gap between theoretical results and practical implementations.
+Despite this theoretical progress, the literature lacks complete, end-to-end implementations. Prior work has been primarily mathematical: proofs that the attacks work in principle, without executable quantum circuits or empirical validation across multiple cipher designs. No single framework compares how Simon's algorithm performs across Even-Mansour, Feistel, and slide settings with consistent methodology. Bonnetain and Jaques (2022) noted this gap between theoretical results and practical implementations.
 
-We fill that gap. Our contributions are:
+This paper fills that gap. Our contributions are:
 
 1. **Complete implementations** of Simon's algorithm attacks on three structurally different cipher designs (Even-Mansour, 3-round Feistel, iterated slide cipher), built as executable quantum circuits on the Qiskit statevector backend.
 2. **Custom GF(2) linear algebra** for equation solving, since standard floating-point libraries produce incorrect results over binary fields.
-3. **Noise-tolerant recovery** using majority-vote decoding, demonstrating that the attacks succeed with up to 30% measurement error — within the range of current quantum hardware.
+3. **Noise-tolerant recovery** using majority-vote decoding, demonstrating that the attacks succeed with up to 30% measurement error, within the range of current quantum hardware.
 4. **A Grover-meet-Simon hybrid** attack on the FX construction, reproducing the theoretical reduction of PRINCE-64 from 127-bit to 37-bit security.
 5. **Systematic experimental validation** across 1,600+ trials, characterizing success rates, query complexity, convergence behavior, round independence, noise phase transitions, and computational scaling from n = 3 to n = 127.
 
@@ -37,13 +37,13 @@ We fill that gap. Our contributions are:
 
 ### 2.1 Block Ciphers
 
-A block cipher is a keyed permutation: it takes a fixed-size block of data (typically 64 or 128 bits) and a secret key, and produces ciphertext of the same size. The same input with the same key always produces the same output, and the operation is reversible given the key. AES, DES, and PRINCE are all block ciphers. The security of a block cipher relies on the computational infeasibility of recovering the key from observed plaintext-ciphertext pairs.
+A block cipher is a keyed permutation: it takes a fixed-size block of data (typically 64 or 128 bits) and a secret key, and produces ciphertext of the same size. The same input with the same key always produces the same output, and the operation is reversible given the key. AES, DES, and PRINCE are all block ciphers. The security of a block cipher depends on the computational infeasibility of recovering the key from observed plaintext-ciphertext pairs.
 
 ### 2.2 Simon's Algorithm
 
 Simon's problem (Simon, 1997) is defined as follows. Given a function f: {0,1}^n -> {0,1}^n with the promise that there exists s in {0,1}^n such that f(x) = f(y) if and only if x XOR y is in {0, s}, find s. Classically, this requires O(2^{n/2}) queries via the birthday bound. Simon's algorithm solves it in O(n) quantum queries.
 
-The algorithm operates as follows:
+The algorithm works as follows:
 
 1. Prepare the state |0^n>|0^n> on 2n qubits.
 2. Apply Hadamard gates to the first register, creating an equal superposition over all n-bit inputs.
@@ -53,11 +53,11 @@ The algorithm operates as follows:
 6. Repeat O(n) times to collect n - 1 linearly independent equations.
 7. Solve the resulting linear system over GF(2) using Gaussian elimination to recover s.
 
-Each measurement is guaranteed to produce a vector orthogonal to s because the second Hadamard transform causes destructive interference on all vectors y where y * s = 1. The quantum mechanics does not merely make a lucky guess — it physically prevents non-orthogonal results from appearing.
+Each measurement is guaranteed to produce a vector orthogonal to s because the second Hadamard transform causes destructive interference on all vectors y where y * s = 1. The quantum mechanics physically prevents non-orthogonal results from appearing.
 
 ### 2.3 The Q2 Threat Model
 
-Quantum attacks on symmetric ciphers operate in two threat models. In Q1, the attacker has a quantum computer but interacts with the cipher classically: they submit classical plaintexts and receive classical ciphertexts. In Q2, the attacker can query the cipher in quantum superposition — the cipher runs inside the quantum computer as a quantum gate, accepting superposition inputs and producing superposition outputs (Boneh & Zhandry, 2013; Gagliardoni et al., 2016).
+Quantum attacks on symmetric ciphers operate under two threat models. In Q1, the attacker has a quantum computer but interacts with the cipher classically: they submit classical plaintexts and receive classical ciphertexts. In Q2, the attacker can query the cipher in quantum superposition, meaning the cipher runs inside the quantum computer as a quantum gate, accepting superposition inputs and producing superposition outputs (Boneh & Zhandry, 2013; Gagliardoni et al., 2016).
 
 Simon's algorithm requires Q2 access. Whether a real-world deployment exposes a Q2 interface depends on the system. A hardware token or smart card, where the attacker has physical access to the circuitry, may allow quantum inputs to be fed directly into the cipher. A network protocol like TLS, where all communication passes through a classical channel, constrains the attacker to Q1 (Kaplan et al., 2016; Bonnetain & Jaques, 2022).
 
@@ -69,7 +69,7 @@ The linear algebra in Simon's algorithm takes place over GF(2), the binary field
 
 ## 3. Cipher Constructions and Attack Reductions
 
-The core insight behind all three attacks is the same: define a function f derived from the cipher that satisfies Simon's promise. The function f is not the cipher itself — it is a carefully constructed combination of cipher queries that creates a hidden period related to the secret key. Simon's algorithm then recovers that period.
+The core insight behind all three attacks is the same: define a function f derived from the cipher that satisfies Simon's promise. The function f is not the cipher itself. It is a carefully constructed combination of cipher queries that creates a hidden period related to the secret key. Simon's algorithm then recovers that period.
 
 ### 3.1 Attack 1: Even-Mansour
 
@@ -137,7 +137,7 @@ Our implementation simulates the Grover search classically (iterating over all 2
 
 ### 4.1 Quantum Circuit Construction
 
-All circuits are built using Qiskit (Qiskit Contributors, 2024) and executed on the statevector backend, which tracks all 2^{2n} complex probability amplitudes exactly. This is not a mathematical shortcut — it faithfully reproduces the superposition, interference, and measurement statistics of a real quantum computer (Nielsen & Chuang, 2010).
+All circuits are built using Qiskit (Qiskit Contributors, 2024) and executed on the statevector backend, which tracks all 2^{2n} complex probability amplitudes exactly. This faithfully reproduces the superposition, interference, and measurement statistics of a real quantum computer (Nielsen & Chuang, 2010). It is a full emulation of the quantum state, not a mathematical approximation.
 
 The cost is exponential in the number of qubits: an n-bit key requires a circuit on 2n qubits with 2^{2n} amplitudes. An 8-bit key requires tracking 65,536 complex amplitudes. This limits our full quantum simulations to n <= 8.
 
@@ -278,7 +278,7 @@ Wall-clock execution time grows exponentially with key size, as expected for sta
 
 The Even-Mansour attack is slower because its oracle circuit is more complex (truth-table-based construction with multi-controlled gates) compared to the basic Simon oracle (direct CNOT construction). Both scale as O(2^{2n}) due to statevector simulation.
 
-This exponential classical simulation cost underscores that these attacks are designed for quantum hardware. On an actual quantum computer, the circuit depth is polynomial in n, and execution time would scale polynomially rather than exponentially.
+This exponential classical simulation cost confirms that these attacks are designed for quantum hardware. On an actual quantum computer, the circuit depth is polynomial in n, and execution time would scale polynomially rather than exponentially.
 
 ### 6.7 PRINCE Scaling Analysis
 
@@ -294,7 +294,7 @@ The Grover-meet-Simon hybrid reduces PRINCE-64's effective security from 127 bit
 
 ### 7.1 The Structural Nature of the Vulnerability
 
-The three attacks in this paper share a common mechanism: each cipher design creates a function with a hidden period related to the secret key. The vulnerability is not in any specific cipher's parameters or key schedule — it is in the algebraic structure of the construction itself.
+The three attacks in this paper share a common mechanism: each cipher design creates a function with a hidden period related to the secret key. The vulnerability is in the algebraic structure of the construction itself, not in any specific cipher's parameters or key schedule.
 
 - Even-Mansour: the XOR-based key mixing creates period k1 in f(x) = E(x) XOR P(x).
 - Feistel: the round structure creates a period in the difference between encryptions with different right-half inputs.
@@ -320,11 +320,11 @@ These attacks require quantum hardware that does not yet exist at the necessary 
 | AES-128 (Grover) | ~802,000 | 104.9M |
 | AES-256 (Grover) | ~1,580,000 | 838.9M |
 
-IBM's largest current processor has 1,121 qubits. However, three papers published between May 2025 and March 2026 reduced estimated qubit requirements for breaking RSA-2048 from 20 million to under one million, and potentially as low as 100,000 using newer architectures. Hardware requirements are a moving target.
+IBM's largest current processor has 1,121 qubits. However, three papers published between May 2025 and March 2026 reduced estimated qubit requirements for breaking RSA-2048 from 20 million to under one million, and possibly as low as 100,000 using newer architectures.
 
 ### 7.4 Harvest Now, Decrypt Later
 
-The temporal gap between data collection and quantum capability creates an immediate security concern. Adversaries — including state-level actors — are intercepting and storing encrypted traffic today, with the expectation that future quantum computers will enable retroactive decryption. The NSA, DHS, the UK's National Cyber Security Centre, the EU Agency for Cybersecurity, and the Australian Cyber Security Centre all base their post-quantum guidance on this premise.
+The temporal gap between data collection and quantum capability creates an immediate security concern. Adversaries, including state-level actors, are intercepting and storing encrypted traffic today, expecting that future quantum computers will enable retroactive decryption. The NSA, DHS, the UK's National Cyber Security Centre, the EU Agency for Cybersecurity, and the Australian Cyber Security Centre all base their post-quantum guidance on this premise.
 
 Data that must remain confidential for more than 10-15 years is already at risk. Medical records, financial data, classified communications, and long-lived cryptographic keys all fall into this category.
 
@@ -332,32 +332,32 @@ Data that must remain confidential for more than 10-15 years is already at risk.
 
 NIST finalized three post-quantum cryptographic standards in August 2024: lattice-based (ML-KEM, ML-DSA), hash-based (SLH-DSA), and code-based (Classic McEliece). These are designed to resist all known quantum attacks.
 
-However, the history of cryptographic standards includes repeated instances of hidden structure being discovered years after deployment:
+However, the history of cryptographic standards includes repeated cases of hidden structure discovered years after deployment:
 
 - **PRINCE** (Borghoff et al., 2012): Published in 2012, deployed in production hardware, broken by the Grover-meet-Simon attack in 2017 (Leander & May, 2017). Security reduced from 127 bits to 37 bits.
 - **SIKE** (NIST post-quantum finalist): Proposed, vetted through multiple rounds of international evaluation, selected as a finalist, then broken overnight by a classical attack exploiting hidden isogeny structure (Castryck & Decru, 2023).
 - **Even-Mansour**: Has a proven optimal classical security bound (Dunkelman et al., 2012). The proof provides no protection against quantum adversaries.
 
-The lattice problems underlying ML-KEM and ML-DSA have been studied for approximately 20 years. RSA was studied for 45 years before practical attacks matured. The structured lattice variants used in the standards (Ring-LWE, Module-LWE) introduce algebraic properties that could harbor undiscovered weaknesses.
+The lattice problems underlying ML-KEM and ML-DSA have been studied for approximately 20 years. RSA was studied for 45 years before practical attacks matured. The structured lattice variants used in the standards (Ring-LWE, Module-LWE) have algebraic properties that could harbor undiscovered weaknesses.
 
-This is not an argument against adopting post-quantum standards — it is an argument for continued cryptanalysis. Every generation of cryptographic standards has contained hidden structure that took years to find. Ongoing quantum cryptanalysis, including the kind of period-finding analysis in this paper, is how the community identifies these weaknesses before adversaries exploit them.
+Adopting post-quantum standards is necessary. So is continued cryptanalysis. Every generation of cryptographic standards has contained hidden structure that took years to find. Quantum cryptanalysis, including the period-finding analysis in this paper, is how the community identifies these weaknesses before adversaries exploit them.
 
 ---
 
 ## 8. Conclusion
 
-We have presented a complete, open-source implementation of Simon's algorithm attacks on three structurally distinct symmetric cipher designs, demonstrating that each falls to an exponential quantum speedup. Our experimental results across 1,600+ trials show:
+We have presented a complete, open-source implementation of Simon's algorithm attacks on three structurally distinct symmetric cipher designs, each falling to an exponential quantum speedup. Our results across 1,600+ trials:
 
 - 100% key recovery at n >= 4 for all four attack types.
 - Mean query count of 1.1n, near the theoretical minimum of n - 1.
-- Tolerance to up to 30% measurement noise, with a sharp phase transition above 35%.
+- Tolerance to 30% measurement noise, with a sharp phase transition above 35%.
 - Complete independence from round count in the slide attack (tested 1-100 rounds).
 - Scaling to real-world key sizes: a 127-bit PRINCE-like key recovered in 21 milliseconds.
 - Reduction of PRINCE-64 security from 127 bits to 37 bits via the Grover-meet-Simon hybrid.
 
-The central finding is that the vulnerability is structural. Certain cipher designs — Even-Mansour, Feistel with identical round keys, iterated ciphers with repeated round functions — create hidden algebraic periods that Simon's algorithm exploits. Classical security proofs, no matter how rigorous, provide no protection against a quantum adversary operating in the Q2 model.
+Certain cipher designs (Even-Mansour, Feistel with identical round keys, iterated ciphers with repeated round functions) create hidden algebraic periods that Simon's algorithm exploits. Classical security proofs, however rigorous, provide no protection against a quantum adversary in the Q2 model.
 
-These attacks require quantum hardware that does not yet exist at the necessary scale. But the convergence of hardware progress, declining resource estimates, and harvest-now-decrypt-later strategies means that the threat is not hypothetical — it is a question of timeline. Data encrypted today with vulnerable constructions may be decryptable within the operational lifetime of the systems that created it.
+These attacks require quantum hardware that does not yet exist at scale. But hardware progress, declining resource estimates, and harvest-now-decrypt-later strategies make the threat a question of timeline, not of feasibility. Data encrypted today with vulnerable constructions may be decryptable within the operational lifetime of the systems that created it.
 
 ---
 
